@@ -1,10 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends, Query, Form, File, UploadFile
 from typing import List, Optional, Any
 from pydantic import BaseModel
-from uuid import uuid4
 from DAO.DAO_manager import DAO_Manager
 from auth.jwt_handler import create_access_token
-from DAO.Post.Post import Post as PostModel
 import json
 from fastapi.responses import JSONResponse
 from bson import ObjectId
@@ -32,10 +30,6 @@ class Comment(BaseModel):
     content: str
     parent_comment_id: Optional[str] = None
 
-class Notification(BaseModel):
-    id: str
-    user_id: str
-    message: str
 
 # ------------------------
 # Auth Endpoints
@@ -107,24 +101,64 @@ async def create_post(
         raise HTTPException(status_code=500, detail=f"Failed to create post: {str(e)}")
 
 @app.get("/posts")
-def get_posts():
-    return {"posts": []}
+def get_posts(post_id: str):
+    post = Manager.get_post(post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
 
 @app.put("/posts/{post_id}")
-def edit_post(post_id: str, content: str):
-    return {"message": "Post edited", "post_id": post_id, "content": content}
+def edit_post(post_id: str, content: str = Form(...)):
+    try:
+        post = Manager.edit_post(post_id, content)
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(post, cls=CustomJSONEncoder)
+            )
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to edit post: {str(e)}")
 
 @app.delete("/posts/{post_id}")
 def delete_post(post_id: str):
-    return {"message": "Post deleted", "post_id": post_id}
+    post = Manager.delete_post(post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return JSONResponse(
+        content=json.loads(
+            json.dumps(post, cls=CustomJSONEncoder)
+        )
+    )
 
 @app.post("/posts/{post_id}/like")
-def like_post(post_id: str):
-    return {"message": "Post liked", "post_id": post_id}
+def like_post(post_id: str, user_id: str = Form(...)):
+    try:
+        post = Manager.like_post(post_id, user_id)
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(post, cls=CustomJSONEncoder)
+            )
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to like post: {str(e)}")
 
 @app.post("/posts/{post_id}/repost")
-def repost(post_id: str):
-    return {"message": "Post reposted", "original_post_id": post_id}
+def repost(post_id: str, user_id: str = Form(...)):
+    try:
+        post = Manager.repost(post_id, user_id)
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(post, cls=CustomJSONEncoder)
+            )
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to repost: {str(e)}")
 
 @app.get("/search/posts")
 def search_posts(query: str):
@@ -182,6 +216,6 @@ def unfollow_user(user_id: str):
 # Notification
 # ------------------------
 
-@app.get("/notifications")
-def get_notifications(user_id: str):
-    return {"user_id": user_id, "notifications": []}
+# @app.get("/notifications")
+# def get_notifications(user_id: str):
+#     return {"user_id": user_id, "notifications": []}

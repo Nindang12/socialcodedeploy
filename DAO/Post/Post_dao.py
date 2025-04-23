@@ -46,7 +46,9 @@ class Post_dao:
             "image_id": None,
             "video_id": None,
             "likes": 0,
+            "liked_by": [],
             "reposts": 0,
+            "reposted_by": [], # List to track users who reposted
             "comments": 0,
             "created_at": datetime.now(),
             "updated_at": datetime.now()
@@ -120,3 +122,107 @@ class Post_dao:
         except Exception as e:
             print(f"Error getting post: {str(e)}")
             return None
+
+    def edit_post(self, post_id: str, content: str):
+        try:
+            self.collection.update_one({"post_id": post_id}, {"$set": {"content": content}})
+            return {"message": "Post updated successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to update post: {str(e)}")
+
+    def delete_post(self, post_id: str):
+        try:
+            self.collection.delete_one({"post_id": post_id})
+            return {"message": "Post deleted successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
+
+    def like_post(self, post_id: str, user_id: str):
+        try:
+            # Get the post first
+            post = self.collection.find_one({"post_id": post_id})
+            if not post:
+                return None
+
+            # Check if user has already liked the post
+            if "liked_by" not in post:
+                # Initialize liked_by array if it doesn't exist
+                self.collection.update_one(
+                    {"post_id": post_id},
+                    {"$set": {"liked_by": []}}
+                )
+                post["liked_by"] = []
+
+            if user_id in post["liked_by"]:
+                # User already liked the post, so unlike it
+                self.collection.update_one(
+                    {"post_id": post_id},
+                    {
+                        "$inc": {"likes": -1},
+                        "$pull": {"liked_by": user_id}
+                    }
+                )
+            else:
+                # User hasn't liked the post, so like it
+                self.collection.update_one(
+                    {"post_id": post_id},
+                    {
+                        "$inc": {"likes": 1},
+                        "$push": {"liked_by": user_id}
+                    }
+                )
+
+            # Get updated post
+            updated_post = self.collection.find_one({"post_id": post_id})
+            if "_id" in updated_post:
+                updated_post["_id"] = str(updated_post["_id"])
+            return updated_post
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to toggle like post: {str(e)}")
+
+    def repost(self, post_id: str, user_id: str):
+        try:
+            # Get the post first
+            post = self.collection.find_one({"post_id": post_id})
+            if not post:
+                return None
+
+            # Check if user has already reposted the post
+            if "reposted_by" not in post:
+                # Initialize reposted_by array if it doesn't exist
+                self.collection.update_one(
+                    {"post_id": post_id},
+                    {"$set": {"reposted_by": []}}
+                )
+                post["reposted_by"] = []
+
+            if user_id in post["reposted_by"]:
+                # User already reposted, so un-repost it
+                self.collection.update_one(
+                    {"post_id": post_id},
+                    {
+                        "$inc": {"reposts": -1},
+                        "$pull": {"reposted_by": user_id}
+                    }
+                )
+            else:
+                # User hasn't reposted, so repost it
+                self.collection.update_one(
+                    {"post_id": post_id},
+                    {
+                        "$inc": {"reposts": 1},
+                        "$push": {"reposted_by": user_id}
+                    }
+                )
+
+            # Get updated post
+            updated_post = self.collection.find_one({"post_id": post_id})
+            if "_id" in updated_post:
+                updated_post["_id"] = str(updated_post["_id"])
+            return updated_post
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to toggle repost: {str(e)}")
+
+
