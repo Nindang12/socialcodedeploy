@@ -1,28 +1,29 @@
-from fastapi import FastAPI, HTTPException, Depends, Query, UploadFile, Form
-from typing import List, Optional
+from fastapi import FastAPI, HTTPException, Depends, Query, Form, File, UploadFile
+from typing import List, Optional, Any
 from pydantic import BaseModel
 from uuid import uuid4
 from DAO.DAO_manager import DAO_Manager
 from auth.jwt_handler import create_access_token
+from DAO.Post.Post import Post as PostModel
+import json
+from fastapi.responses import JSONResponse
+from bson import ObjectId
 from datetime import datetime
-from DAO.User.User import User
-from DAO.Post.Post import Post
+
 # ------------------------
 # Mock Models and Schemas
 # ------------------------
 Manager = DAO_Manager()
-
 class User(BaseModel):
     full_name: str
     phone_number: str
     username: str
     email: str
     password: str
-class Post(BaseModel):
+
+class PostCreate(BaseModel):
     user_id: str
     content: str
-    image_url: Optional[str] = None
-    video_url: Optional[str] = None         
 
 class Comment(BaseModel):
     id: str
@@ -49,9 +50,7 @@ def signup(user: User):
         Manager.get_user_by_username(user.username)):
         raise HTTPException(status_code=400, detail="User already exists")
     Manager.create_user(user)
-    return {"message": "User signed up", "user": user}
-
-
+    return {"message": "User signed up", "user": user} 
 
 @app.post("/login")
 def login(user: User):
@@ -69,14 +68,47 @@ def login(user: User):
 # Post Endpoints
 # ------------------------
 
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+def custom_json_serializer(obj: Any) -> Any:
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if hasattr(obj, 'to_dict'):
+        return obj.to_dict()
+    return str(obj)
+
 @app.post("/posts")
-def create_post(post: Post, image: UploadFile = None, video: UploadFile = None):
-    Manager.create_post(post.user_id, post.content, image, video)
-    return {"message": "Post created", "post": post}
+async def create_post(
+    post_data: str = Form(...),
+    image: UploadFile = File(None),
+    video: UploadFile = File(None)
+):
+    try:
+        post_dict = json.loads(post_data)
+        post_create = PostCreate(**post_dict)
+        
+        result = Manager.create_post(post_create, image, video)
+        
+        # Use custom serializer for the response
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(result, cls=CustomJSONEncoder)
+            )
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create post: {str(e)}")
 
 @app.get("/posts")
-def get_posts(post_id: str):
-    return {"posts": Manager.get_post(post_id)}
+def get_posts():
+    return {"posts": []}
 
 @app.put("/posts/{post_id}")
 def edit_post(post_id: str, content: str):

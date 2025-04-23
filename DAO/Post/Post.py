@@ -1,16 +1,22 @@
 from datetime import datetime
 from typing import Optional
+import uuid
 
 class Post:
-    def __init__(self, post_id: str, user_id: str, content: str, 
-                 image_url: Optional[str] = None, video_url: Optional[str] = None,
-                 likes: int = 0, reposts: int = 0, comments: int = 0,
-                 created_at: datetime = None, updated_at: datetime = None):
-        self.post_id = post_id
+    def __init__(self, user_id: str, content: str, 
+                 post_id: Optional[str] = None,
+                 image_id: Optional[str] = None, 
+                 video_id: Optional[str] = None,
+                 likes: int = 0, 
+                 reposts: int = 0, 
+                 comments: int = 0,
+                 created_at: Optional[datetime] = None, 
+                 updated_at: Optional[datetime] = None):
+        self.post_id = post_id or str(uuid.uuid4())
         self.user_id = user_id
         self.content = content
-        self.image_url = image_url
-        self.video_url = video_url
+        self.image_id = image_id
+        self.video_id = video_id
         self.likes = likes
         self.reposts = reposts 
         self.comments = comments
@@ -22,8 +28,8 @@ class Post:
             "post_id": self.post_id,
             "user_id": self.user_id,
             "content": self.content,
-            "image_url": self.image_url,
-            "video_url": self.video_url,
+            "image_id": self.image_id,
+            "video_id": self.video_id,
             "likes": self.likes,
             "reposts": self.reposts,
             "comments": self.comments,
@@ -34,11 +40,11 @@ class Post:
     @staticmethod
     def from_dict(data: dict):
         return Post(
-            post_id=data["post_id"],
+            post_id=data.get("post_id"),
             user_id=data["user_id"],
             content=data["content"],
-            image_url=data.get("image_url"),
-            video_url=data.get("video_url"),
+            image_id=data.get("image_id"),
+            video_id=data.get("video_id"),
             likes=data.get("likes", 0),
             reposts=data.get("reposts", 0),
             comments=data.get("comments", 0),
