@@ -1,26 +1,28 @@
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, UploadFile, Form
 from typing import List, Optional
 from pydantic import BaseModel
 from uuid import uuid4
 from DAO.DAO_manager import DAO_Manager
 from auth.jwt_handler import create_access_token
-
-
+from datetime import datetime
+from DAO.User.User import User
+from DAO.Post.Post import Post
 # ------------------------
 # Mock Models and Schemas
 # ------------------------
 Manager = DAO_Manager()
+
 class User(BaseModel):
     full_name: str
     phone_number: str
     username: str
     email: str
     password: str
-
 class Post(BaseModel):
-    id: str
     user_id: str
     content: str
+    image_url: Optional[str] = None
+    video_url: Optional[str] = None         
 
 class Comment(BaseModel):
     id: str
@@ -46,7 +48,7 @@ def signup(user: User):
         Manager.get_user_by_email(user.email) or
         Manager.get_user_by_username(user.username)):
         raise HTTPException(status_code=400, detail="User already exists")
-    Manager.create_user(user.full_name, user.phone_number, user.username, user.email, user.password)
+    Manager.create_user(user)
     return {"message": "User signed up", "user": user}
 
 
@@ -58,22 +60,23 @@ def login(user: User):
         raise HTTPException(status_code=400, detail="User not found")
     return {"message": "User logged in", "token": create_access_token({"user_id": user["user_id"]})}
 
-@app.post("/logout")
-def logout(token: str = Query(...)):
-    Manager.logout(token)
-    return {"message": "User logged out"}
+# @app.post("/logout")
+# def logout(token: str = Query(...)):
+#     Manager.logout(token)
+#     return {"message": "User logged out"}
 
 # ------------------------
 # Post Endpoints
 # ------------------------
 
 @app.post("/posts")
-def create_post(post: Post):
+def create_post(post: Post, image: UploadFile = None, video: UploadFile = None):
+    Manager.create_post(post.user_id, post.content, image, video)
     return {"message": "Post created", "post": post}
 
 @app.get("/posts")
-def get_posts():
-    return {"posts": []}
+def get_posts(post_id: str):
+    return {"posts": Manager.get_post(post_id)}
 
 @app.put("/posts/{post_id}")
 def edit_post(post_id: str, content: str):

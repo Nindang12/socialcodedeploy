@@ -3,24 +3,24 @@ import os
 from DAO.connection import DatabaseConnection
 import uuid
 import bcrypt
-
+from DAO.User.User import User
 class User_dao:
     def __init__(self):
         self.db = DatabaseConnection.get_db()
         self.collection = self.db["user"]
         self.token_blacklist = self.db["token_blacklist"]
-    def create_user(self, full_name: str, phone_number: str, username: str, email: str, password: str):
+    def create_user(self, user: User):
        
         # Hash password before storing
         salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+        hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
         
         user = {
             "user_id": str(uuid.uuid4()),   
-            "full_name": full_name,
-            "phone_number": phone_number,
-            "username": username,
-            "email": email,
+            "full_name": user.full_name,
+            "phone_number": user.phone_number,
+            "username": user.username,
+            "email": user.email,
             "password": hashed_password
         }
         return self.collection.insert_one(user)
