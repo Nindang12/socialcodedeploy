@@ -225,4 +225,17 @@ class Post_dao:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to toggle repost: {str(e)}")
 
-
+    def search_posts(self, query: str):
+        try:
+            # Search for posts containing the query in content or user_id
+            posts = self.collection.find({
+                "$or": [
+                    {"content": {"$regex": query, "$options": "i"}},
+                    {"user_id": {"$regex": query, "$options": "i"}},
+                    {"post_id": {"$regex": query, "$options": "i"}},
+                    {"full_name": {"$regex": query, "$options": "i"}}
+                ]
+            })
+            return list(posts)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to search posts: {str(e)}")

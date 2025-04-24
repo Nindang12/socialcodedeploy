@@ -162,7 +162,8 @@ def repost(post_id: str, user_id: str = Form(...)):
 
 @app.get("/search/posts")
 def search_posts(query: str):
-    return {"query": query, "results": []}
+    posts = Manager.search_posts(query)
+    return {"query": query, "results": posts}
 
 # ------------------------
 # Comment Endpoints

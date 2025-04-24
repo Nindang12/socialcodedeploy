@@ -45,10 +45,14 @@ class DAO_Manager:
 
     def delete_post(self, post_id: str):
         return self.post_dao.delete_post(post_id)
+    
     def like_post(self, post_id: str, user_id: str):
         return self.post_dao.like_post(post_id, user_id)
+    
     def repost(self, post_id: str, user_id: str):
         return self.post_dao.repost(post_id, user_id)
+    def search_posts(self, query: str):
+        return self.post_dao.search_posts(query)
     def comment_post(self, post_id: str, comment: Comment):
         return self.post_dao.comment_post(post_id, comment)
     def reply_comment(self, comment_id: str, comment: Comment):
