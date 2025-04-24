@@ -50,7 +50,7 @@ def signup(user: User):
 def login(user: User):
     user = Manager.authenticate_user(user.phone_number, user.email, user.username, user.password)
     if not user:
-        raise HTTPException(status_code=400, detail="User not found")
+        raise HTTPException(status_code=400, detail="User not found",)
     return {"message": "User logged in", "token": create_access_token({"user_id": user["user_id"]})}
 
 # @app.post("/logout")

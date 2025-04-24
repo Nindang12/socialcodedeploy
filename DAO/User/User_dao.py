@@ -4,6 +4,8 @@ from DAO.connection import DatabaseConnection
 import uuid
 import bcrypt
 from DAO.User.User import User
+from auth.jwt_handler import create_access_token 
+
 class User_dao:
     def __init__(self):
         self.db = DatabaseConnection.get_db()
@@ -39,13 +41,16 @@ class User_dao:
         # Find user by phone/email/username first
         user = self.collection.find_one({"phone_number": phone_number})
         if user:
-            return user
+            if bcrypt.checkpw(password.encode('utf-8'), user["password"]):
+                return user
         user = self.collection.find_one({"email": email})
         if user:
-            return user
+            if bcrypt.checkpw(password.encode('utf-8'), user["password"]):
+                return user
         user = self.collection.find_one({"username": username})
         if user:
-            return user
+            if bcrypt.checkpw(password.encode('utf-8'), user["password"]):
+                return user
         return None
     def logout(self, token: str):
         return self.token_blacklist.insert_one({"token": token})
