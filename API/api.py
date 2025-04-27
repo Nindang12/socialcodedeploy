@@ -24,7 +24,6 @@ class PostCreate(BaseModel):
     content: str
 
 class Comment(BaseModel):
-    id: str
     post_id: str
     user_id: str
     content: str
@@ -158,11 +157,42 @@ def search_posts(query: str):
 # ------------------------
 
 @app.post("/posts/{post_id}/comment")
-def comment_post(post_id: str, comment: Comment):
+async def comment_post(
+    post_id: str,
+    comment_data: str = Form(...),
+    image: UploadFile = File(None),
+    video: UploadFile = File(None)
+):
     try:
-        result = Manager.comment_post(post_id, comment)
+        # Parse comment data
+        try:
+            comment_dict = json.loads(comment_data)
+            required_fields = ["user_id", "content"]
+            for field in required_fields:
+                if field not in comment_dict:
+                    raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid JSON format for comment_data")
+
+        # Create Comment object
+        comment = Comment(
+            user_id=comment_dict["user_id"],
+            post_id=post_id,
+            content=comment_dict["content"],
+            parent_comment_id=comment_dict.get("parent_comment_id")
+        )
+        
+        # Validate file types if provided
+        if image and not image.content_type.startswith('image/'):
+            raise HTTPException(status_code=400, detail="Invalid image file type")
+        if video and not video.content_type.startswith('video/'):
+            raise HTTPException(status_code=400, detail="Invalid video file type")
+        
+        # Create comment with files
+        result = Manager.comment_post(post_id, comment, image, video)
         if not result:
             raise HTTPException(status_code=404, detail="Post not found")
+            
         return JSONResponse(
             content=json.loads(
                 json.dumps(result, cls=CustomJSONEncoder)
@@ -174,11 +204,42 @@ def comment_post(post_id: str, comment: Comment):
         raise HTTPException(status_code=500, detail=f"Failed to create comment: {str(e)}")
 
 @app.post("/comments/{comment_id}/reply")
-def reply_comment(comment_id: str, comment: Comment):
+async def reply_comment(
+    comment_id: str,
+    comment_data: str = Form(...),
+    image: UploadFile = File(None),
+    video: UploadFile = File(None)
+):
     try:
-        result = Manager.reply_comment(comment_id, comment)
+        # Parse comment data
+        try:
+            comment_dict = json.loads(comment_data)
+            required_fields = ["user_id", "post_id", "content"]
+            for field in required_fields:
+                if field not in comment_dict:
+                    raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid JSON format for comment_data")
+
+        # Create Comment object
+        comment = Comment(
+            user_id=comment_dict["user_id"],
+            post_id=comment_dict["post_id"],
+            content=comment_dict["content"],
+            parent_comment_id=comment_id
+        )
+        
+        # Validate file types if provided
+        if image and not image.content_type.startswith('image/'):
+            raise HTTPException(status_code=400, detail="Invalid image file type")
+        if video and not video.content_type.startswith('video/'):
+            raise HTTPException(status_code=400, detail="Invalid video file type")
+        
+        # Create reply with files
+        result = Manager.reply_comment(comment_id, comment, image, video)
         if not result:
             raise HTTPException(status_code=404, detail="Comment not found")
+            
         return JSONResponse(
             content=json.loads(
                 json.dumps(result, cls=CustomJSONEncoder)

@@ -51,12 +51,16 @@ class DAO_Manager:
     
     def repost(self, post_id: str, user_id: str):
         return self.post_dao.repost(post_id, user_id)
+    
     def search_posts(self, query: str):
         return self.post_dao.search_posts(query)
-    def comment_post(self, post_id: str, comment: Comment):
-        return self.comment_dao.comment_post(post_id, comment)
-    def reply_comment(self, comment_id: str, comment: Comment):
-        return self.comment_dao.reply_comment(comment_id, comment)
+    
+    def comment_post(self, post_id: str, comment: Comment, image: UploadFile = None, video: UploadFile = None):
+        return self.comment_dao.comment_post(post_id, comment, image, video)
+    
+    def reply_comment(self, comment_id: str, comment: Comment, image: UploadFile = None, video: UploadFile = None):
+        return self.comment_dao.reply_comment(comment_id, comment, image, video)
+    
     def edit_comment(self, comment_id: str, content: str):
         return self.comment_dao.edit_comment(comment_id, content)
     def delete_comment(self, comment_id: str):

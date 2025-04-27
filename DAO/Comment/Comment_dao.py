@@ -1,16 +1,44 @@
 from DAO.connection import DatabaseConnection
 from DAO.Comment.Comment import Comment
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
+from DAO.GridFSConfig import gridfs_client
 import uuid
 from datetime import datetime
 from typing import Optional, List
+import os
 
 class Comment_dao:
     def __init__(self):
         self.db = DatabaseConnection.get_db()
         self.collection = self.db["comment"]
+        self.MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+        self.ALLOWED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif'}
+        self.ALLOWED_VIDEO_EXTENSIONS = {'.mp4', '.mov', '.avi'}
 
-    def comment_post(self, post_id: str, comment: Comment):
+    def _validate_file(self, file: UploadFile, is_image: bool = True):
+        # Check file extension
+        file_ext = os.path.splitext(file.filename)[1].lower()
+        allowed_extensions = self.ALLOWED_IMAGE_EXTENSIONS if is_image else self.ALLOWED_VIDEO_EXTENSIONS
+        if file_ext not in allowed_extensions:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
+            )
+
+        # Check file size
+        file_size = 0
+        for chunk in file.file:
+            file_size += len(chunk)
+            if file_size > self.MAX_FILE_SIZE:
+                file.file.seek(0)  # Reset file pointer before raising exception
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File size exceeds maximum allowed size of {self.MAX_FILE_SIZE/1024/1024}MB"
+                )
+        file.file.seek(0)  # Reset file pointer after validation
+        return file_size
+
+    def comment_post(self, post_id: str, comment: Comment, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
         try:
             # Kiểm tra bài post có tồn tại không
             post_collection = self.db["post"]
@@ -39,12 +67,52 @@ class Comment_dao:
                 "user_id": comment.user_id,
                 "content": comment.content,
                 "parent_comment_id": comment.parent_comment_id,
+                "image_id": None,
+                "video_id": None,
                 "likes": 0,
                 "liked_by": [],
                 "replies": 0,
                 "created_at": datetime.now(),
                 "updated_at": datetime.now()
             }
+
+            # Handle image upload
+            if image:
+                try:
+                    self._validate_file(image, is_image=True)
+                    image_filename = f"comment_images/{comment_dict['comment_id']}_{image.filename}"
+                    image_content = image.file.read()
+                    image_id = gridfs_client.upload_file(
+                        file_data=image_content,
+                        file_name=image_filename,
+                        content_type=image.content_type,
+                        is_image=True
+                    )
+                    comment_dict["image_id"] = image_id
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"Image upload failed: {str(e)}")
+
+            # Handle video upload
+            if video:
+                try:
+                    self._validate_file(video, is_image=False)
+                    video_filename = f"comment_videos/{comment_dict['comment_id']}_{video.filename}"
+                    video_content = video.file.read()
+                    video_id = gridfs_client.upload_file(
+                        file_data=video_content,
+                        file_name=video_filename,
+                        content_type=video.content_type,
+                        is_image=False
+                    )
+                    comment_dict["video_id"] = video_id
+                except Exception as e:
+                    # If video upload fails and we have an image, we should clean up the image
+                    if comment_dict["image_id"]:
+                        try:
+                            gridfs_client.delete_file(comment_dict["image_id"], is_image=True)
+                        except:
+                            pass
+                    raise HTTPException(status_code=400, detail=f"Video upload failed: {str(e)}")
 
             # Thêm comment vào database
             self.collection.insert_one(comment_dict)
@@ -67,10 +135,20 @@ class Comment_dao:
         except HTTPException:
             raise
         except Exception as e:
+            # Clean up uploaded files if database insertion fails
+            if "image_id" in locals() and comment_dict.get("image_id"):
+                try:
+                    gridfs_client.delete_file(comment_dict["image_id"], is_image=True)
+                except:
+                    pass
+            if "video_id" in locals() and comment_dict.get("video_id"):
+                try:
+                    gridfs_client.delete_file(comment_dict["video_id"], is_image=False)
+                except:
+                    pass
             raise HTTPException(status_code=500, detail=f"Failed to create comment: {str(e)}")
 
-
-    def reply_comment(self, comment_id: str, comment: Comment):
+    def reply_comment(self, comment_id: str, comment: Comment, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
         try:
             # Get parent comment
             parent_comment = self.collection.find_one({"comment_id": comment_id})
@@ -84,12 +162,52 @@ class Comment_dao:
                 "user_id": comment.user_id,
                 "content": comment.content,
                 "parent_comment_id": comment_id,
+                "image_id": None,
+                "video_id": None,
                 "likes": 0,
                 "liked_by": [],
                 "replies": 0,
                 "created_at": datetime.now(),
                 "updated_at": datetime.now()
             }
+
+            # Handle image upload
+            if image:
+                try:
+                    self._validate_file(image, is_image=True)
+                    image_filename = f"comment_images/{reply_dict['comment_id']}_{image.filename}"
+                    image_content = image.file.read()
+                    image_id = gridfs_client.upload_file(
+                        file_data=image_content,
+                        file_name=image_filename,
+                        content_type=image.content_type,
+                        is_image=True
+                    )
+                    reply_dict["image_id"] = image_id
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"Image upload failed: {str(e)}")
+
+            # Handle video upload
+            if video:
+                try:
+                    self._validate_file(video, is_image=False)
+                    video_filename = f"comment_videos/{reply_dict['comment_id']}_{video.filename}"
+                    video_content = video.file.read()
+                    video_id = gridfs_client.upload_file(
+                        file_data=video_content,
+                        file_name=video_filename,
+                        content_type=video.content_type,
+                        is_image=False
+                    )
+                    reply_dict["video_id"] = video_id
+                except Exception as e:
+                    # If video upload fails and we have an image, we should clean up the image
+                    if reply_dict["image_id"]:
+                        try:
+                            gridfs_client.delete_file(reply_dict["image_id"], is_image=True)
+                        except:
+                            pass
+                    raise HTTPException(status_code=400, detail=f"Video upload failed: {str(e)}")
 
             # Insert reply into database
             self.collection.insert_one(reply_dict)
@@ -102,7 +220,20 @@ class Comment_dao:
 
             return reply_dict
 
+        except HTTPException:
+            raise
         except Exception as e:
+            # Clean up uploaded files if database insertion fails
+            if "image_id" in locals() and reply_dict.get("image_id"):
+                try:
+                    gridfs_client.delete_file(reply_dict["image_id"], is_image=True)
+                except:
+                    pass
+            if "video_id" in locals() and reply_dict.get("video_id"):
+                try:
+                    gridfs_client.delete_file(reply_dict["video_id"], is_image=False)
+                except:
+                    pass
             raise HTTPException(status_code=500, detail=f"Failed to create reply: {str(e)}")
 
     def edit_comment(self, comment_id: str, content: str):

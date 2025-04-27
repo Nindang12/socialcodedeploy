@@ -25,17 +25,20 @@ class Post_dao:
                 detail=f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
             )
 
+        # Read file content
+        file_content = file.file.read()
+        file_size = len(file_content)
+        
         # Check file size
-        file_size = 0
-        for chunk in file.file:
-            file_size += len(chunk)
-            if file_size > self.MAX_FILE_SIZE:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"File size exceeds maximum allowed size of {self.MAX_FILE_SIZE/1024/1024}MB"
-                )
-        file.file.seek(0)  # Reset file pointer
-        return file_size
+        if file_size > self.MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail=f"File size exceeds maximum allowed size of {self.MAX_FILE_SIZE/1024/1024}MB"
+            )
+        
+        # Reset file pointer
+        file.file.seek(0)
+        return file_size, file_content
 
     def create_post(self, post: Post, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
         # Create post dictionary from Post object
@@ -58,32 +61,36 @@ class Post_dao:
             # Handle image upload
             if image:
                 try:
-                    self._validate_file(image, is_image=True)
+                    file_size, image_content = self._validate_file(image, is_image=True)
                     image_filename = f"images/{post_dict['post_id']}_{image.filename}"
-                    image_content = image.file.read()
                     image_id = gridfs_client.upload_file(
                         file_data=image_content,
                         file_name=image_filename,
                         content_type=image.content_type,
                         is_image=True
                     )
-                    post_dict["image_id"] = image_id
+                    if image_id:
+                        post_dict["image_id"] = image_id
+                    else:
+                        raise HTTPException(status_code=400, detail="Failed to upload image to GridFS")
                 except Exception as e:
                     raise HTTPException(status_code=400, detail=f"Image upload failed: {str(e)}")
 
             # Handle video upload
             if video:
                 try:
-                    self._validate_file(video, is_image=False)
+                    file_size, video_content = self._validate_file(video, is_image=False)
                     video_filename = f"videos/{post_dict['post_id']}_{video.filename}"
-                    video_content = video.file.read()
                     video_id = gridfs_client.upload_file(
                         file_data=video_content,
                         file_name=video_filename,
                         content_type=video.content_type,
                         is_image=False
                     )
-                    post_dict["video_id"] = video_id
+                    if video_id:
+                        post_dict["video_id"] = video_id
+                    else:
+                        raise HTTPException(status_code=400, detail="Failed to upload video to GridFS")
                 except Exception as e:
                     # If video upload fails and we have an image, we should clean up the image
                     if post_dict["image_id"]:
