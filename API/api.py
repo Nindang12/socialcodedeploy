@@ -85,20 +85,17 @@ async def create_post(
     image: UploadFile = File(None),
     video: UploadFile = File(None)
 ):
-    try:
-        post_dict = json.loads(post_data)
-        post_create = PostCreate(**post_dict)
+    post_dict = json.loads(post_data)
+    post_create = PostCreate(**post_dict)
+    
+    result = Manager.create_post(post_create, image, video)
         
-        result = Manager.create_post(post_create, image, video)
-        
-        # Use custom serializer for the response
-        return JSONResponse(
-            content=json.loads(
-                json.dumps(result, cls=CustomJSONEncoder)
-            )
+    # Use custom serializer for the response
+    return JSONResponse(
+        content=json.loads(
+            json.dumps(result, cls=CustomJSONEncoder)
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create post: {str(e)}")
+    )
 
 @app.get("/posts")
 def get_posts(post_id: str):
@@ -109,17 +106,14 @@ def get_posts(post_id: str):
 
 @app.put("/posts/{post_id}")
 def edit_post(post_id: str, content: str = Form(...)):
-    try:
-        post = Manager.edit_post(post_id, content)
-        if not post:
-            raise HTTPException(status_code=404, detail="Post not found")
-        return JSONResponse(
-            content=json.loads(
-                json.dumps(post, cls=CustomJSONEncoder)
-            )
+    post = Manager.edit_post(post_id, content)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return JSONResponse(
+        content=json.loads(
+            json.dumps(post, cls=CustomJSONEncoder)
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to edit post: {str(e)}")
+    )
 
 @app.delete("/posts/{post_id}")
 def delete_post(post_id: str):
@@ -134,31 +128,25 @@ def delete_post(post_id: str):
 
 @app.post("/posts/{post_id}/like")
 def like_post(post_id: str, user_id: str = Form(...)):
-    try:
-        post = Manager.like_post(post_id, user_id)
-        if not post:
-            raise HTTPException(status_code=404, detail="Post not found")
-        return JSONResponse(
-            content=json.loads(
-                json.dumps(post, cls=CustomJSONEncoder)
-            )
+    post = Manager.like_post(post_id, user_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return JSONResponse(
+        content=json.loads(
+            json.dumps(post, cls=CustomJSONEncoder)
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to like post: {str(e)}")
+    )
 
 @app.post("/posts/{post_id}/repost")
 def repost(post_id: str, user_id: str = Form(...)):
-    try:
-        post = Manager.repost(post_id, user_id)
-        if not post:
-            raise HTTPException(status_code=404, detail="Post not found")
-        return JSONResponse(
-            content=json.loads(
-                json.dumps(post, cls=CustomJSONEncoder)
-            )
+    post = Manager.repost(post_id, user_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return JSONResponse(
+        content=json.loads(
+            json.dumps(post, cls=CustomJSONEncoder)
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to repost: {str(e)}")
+    )
 
 @app.get("/search/posts")
 def search_posts(query: str):
@@ -169,29 +157,99 @@ def search_posts(query: str):
 # Comment Endpoints
 # ------------------------
 
-@app.post("/posts/{post_id}/comments")
+@app.post("/posts/{post_id}/comment")
 def comment_post(post_id: str, comment: Comment):
-    return {"message": "Comment added", "post_id": post_id, "comment": comment}
+    try:
+        result = Manager.comment_post(post_id, comment)
+        if not result:
+            raise HTTPException(status_code=404, detail="Post not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(result, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create comment: {str(e)}")
 
 @app.post("/comments/{comment_id}/reply")
 def reply_comment(comment_id: str, comment: Comment):
-    return {"message": "Reply added", "parent_comment_id": comment_id, "comment": comment}
+    try:
+        result = Manager.reply_comment(comment_id, comment)
+        if not result:
+            raise HTTPException(status_code=404, detail="Comment not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(result, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create reply: {str(e)}")
 
 @app.put("/comments/{comment_id}")
 def edit_comment(comment_id: str, content: str):
-    return {"message": "Comment edited", "comment_id": comment_id, "content": content}
+    try:
+        result = Manager.edit_comment(comment_id, content)
+        if not result:
+            raise HTTPException(status_code=404, detail="Comment not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(result, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to edit comment: {str(e)}")
 
 @app.delete("/comments/{comment_id}")
 def delete_comment(comment_id: str):
-    return {"message": "Comment deleted", "comment_id": comment_id}
+    try:
+        result = Manager.delete_comment(comment_id)
+        if not result:
+            raise HTTPException(status_code=404, detail="Comment not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(result, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete comment: {str(e)}")
 
 @app.post("/comments/{comment_id}/like")
-def like_comment(comment_id: str):
-    return {"message": "Comment liked", "comment_id": comment_id}
+def like_comment(comment_id: str, user_id: str = Form(...)):
+    try:
+        result = Manager.like_comment(comment_id, user_id)
+        if not result:
+            raise HTTPException(status_code=404, detail="Comment not found")
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(result, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to like comment: {str(e)}")
 
 @app.get("/posts/{post_id}/comments")
 def get_comments(post_id: str):
-    return {"post_id": post_id, "comments": []}
+    try:
+        comments = Manager.get_comments(post_id)
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(comments, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get comments: {str(e)}")
 
 # ------------------------
 # User Endpoints

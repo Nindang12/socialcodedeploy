@@ -236,6 +236,18 @@ class Post_dao:
                     {"full_name": {"$regex": query, "$options": "i"}}
                 ]
             })
-            return list(posts)
+
+            results = []
+            for post in posts:
+                if "_id" in post:
+                    post["_id"] = str(post["_id"])
+                results.append(post)
+
+            if not results:
+                raise HTTPException(status_code=404, detail="No posts found")
+
+            return results
+
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to search posts: {str(e)}")
+

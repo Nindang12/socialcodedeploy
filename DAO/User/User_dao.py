@@ -4,7 +4,6 @@ from DAO.connection import DatabaseConnection
 import uuid
 import bcrypt
 from DAO.User.User import User
-from auth.jwt_handler import create_access_token 
 
 class User_dao:
     def __init__(self):

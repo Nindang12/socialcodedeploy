@@ -3,14 +3,14 @@ from DAO.Post.Post_dao import Post_dao
 from DAO.User.User import User
 from DAO.Post.Post import Post
 from DAO.Comment.Comment import Comment
-# from DAO.Comment.Comment_dao import Comment_dao
+from DAO.Comment.Comment_dao import Comment_dao
 # from DAO.Notification.Notification_dao import Notification_dao
 from fastapi import UploadFile
 class DAO_Manager:
     def __init__(self):
         self.user_dao = User_dao()
         self.post_dao = Post_dao()
-        # self.comment_dao = Comment_dao() 
+        self.comment_dao = Comment_dao() 
         # self.notification_dao = Notification_dao()
 
     def create_user(self, user: User):
@@ -54,15 +54,15 @@ class DAO_Manager:
     def search_posts(self, query: str):
         return self.post_dao.search_posts(query)
     def comment_post(self, post_id: str, comment: Comment):
-        return self.post_dao.comment_post(post_id, comment)
+        return self.comment_dao.comment_post(post_id, comment)
     def reply_comment(self, comment_id: str, comment: Comment):
-        return self.post_dao.reply_comment(comment_id, comment)
+        return self.comment_dao.reply_comment(comment_id, comment)
     def edit_comment(self, comment_id: str, content: str):
-        return self.post_dao.edit_comment(comment_id, content)
+        return self.comment_dao.edit_comment(comment_id, content)
     def delete_comment(self, comment_id: str):
-        return self.post_dao.delete_comment(comment_id)
+        return self.comment_dao.delete_comment(comment_id)
     def like_comment(self, comment_id: str):
-        return self.post_dao.like_comment(comment_id)
+        return self.comment_dao.like_comment(comment_id)
     def get_comments(self, post_id: str):
-        return self.post_dao.get_comments(post_id)
+        return self.comment_dao.get_comments(post_id)
 
