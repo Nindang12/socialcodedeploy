@@ -55,5 +55,9 @@ class User_dao:
         return self.token_blacklist.insert_one({"token": token})
     def is_token_blacklisted(self, token: str):
         return self.token_blacklist.find_one({"token": token}) is not None
-
-
+    def get_users(self):
+        users = self.collection.find()
+        user_list = list(users)
+        for user in user_list:
+            user["_id"] = str(user["_id"])  
+        return user_list

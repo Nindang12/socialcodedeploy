@@ -251,7 +251,7 @@ async def reply_comment(
         raise HTTPException(status_code=500, detail=f"Failed to create reply: {str(e)}")
 
 @app.put("/comments/{comment_id}")
-def edit_comment(comment_id: str, content: str):
+def edit_comment(comment_id: str, content: str = Form(...)):
     try:
         result = Manager.edit_comment(comment_id, content)
         if not result:
@@ -318,7 +318,8 @@ def get_comments(post_id: str):
 
 @app.get("/users")
 def get_users():
-    return {"users": []}
+    users = Manager.get_users()
+    return {"users": users}
 
 @app.get("/search/users")
 def search_users(query: str):

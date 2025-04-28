@@ -63,10 +63,15 @@ class DAO_Manager:
     
     def edit_comment(self, comment_id: str, content: str):
         return self.comment_dao.edit_comment(comment_id, content)
+    
     def delete_comment(self, comment_id: str):
         return self.comment_dao.delete_comment(comment_id)
-    def like_comment(self, comment_id: str):
-        return self.comment_dao.like_comment(comment_id)
+    
+    def like_comment(self, comment_id: str, user_id: str):
+        return self.comment_dao.like_comment(comment_id, user_id)
+    
     def get_comments(self, post_id: str):
         return self.comment_dao.get_comments(post_id)
+    def get_users(self):
+        return self.user_dao.get_users()
 
