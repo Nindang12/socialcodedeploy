@@ -4,6 +4,7 @@ from DAO.connection import DatabaseConnection
 import uuid
 import bcrypt
 from DAO.User.User import User
+from fastapi import HTTPException
 
 class User_dao:
     def __init__(self):
@@ -60,4 +61,44 @@ class User_dao:
         user_list = list(users)
         for user in user_list:
             user["_id"] = str(user["_id"])  
+            users = self.collection.find({}, {"password": 0})
         return user_list
+    def follow_user(self, current_user_id: str, target_user_id: str):
+        if current_user_id == target_user_id:
+            raise HTTPException(status_code=400, detail="You cannot follow yourself")
+        user_collection = self.collection
+        current_user = user_collection.find_one({"user_id": current_user_id})
+        target_user = user_collection.find_one({"user_id": target_user_id})
+        if not current_user or not target_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        # Check if already following
+        if "following" in current_user and target_user_id in current_user["following"]:
+            raise HTTPException(status_code=400, detail="Already following this user")
+        # Add to following and followers
+        user_collection.update_one(
+            {"user_id": current_user_id},
+            {"$addToSet": {"following": target_user_id}}
+        )
+        user_collection.update_one(
+            {"user_id": target_user_id},
+            {"$addToSet": {"followers": current_user_id}}
+        )
+        return {"message": "Followed user successfully"}
+    def unfollow_user(self, current_user_id: str, target_user_id: str):
+        if current_user_id == target_user_id:
+            raise HTTPException(status_code=400, detail="You cannot unfollow yourself")
+        user_collection = self.collection
+        current_user = user_collection.find_one({"user_id": current_user_id})
+        target_user = user_collection.find_one({"user_id": target_user_id})
+        if not current_user or not target_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        # Remove from following and followers
+        user_collection.update_one(
+            {"user_id": current_user_id},
+            {"$pull": {"following": target_user_id}}
+        )
+        user_collection.update_one(
+            {"user_id": target_user_id},
+            {"$pull": {"followers": current_user_id}}
+        )
+        return {"message": "Unfollowed user successfully"}

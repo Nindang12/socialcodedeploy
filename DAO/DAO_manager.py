@@ -4,6 +4,7 @@ from DAO.User.User import User
 from DAO.Post.Post import Post
 from DAO.Comment.Comment import Comment
 from DAO.Comment.Comment_dao import Comment_dao
+from fastapi import  HTTPException 
 # from DAO.Notification.Notification_dao import Notification_dao
 from fastapi import UploadFile
 class DAO_Manager:
@@ -78,4 +79,28 @@ class DAO_Manager:
     
     def get_users(self):
         return self.user_dao.get_users()
+    def search_user(self, user_id: str = None, email: str = None, username: str = None, phone_number: str = None):
+        query = {}
+        if user_id:
+            query["user_id"] = user_id
+        if email:
+            query["email"] = email
+        if username:
+            query["username"] = username
+        if phone_number:
+            query["phone_number"] = phone_number
+        if not query:
+            raise HTTPException(status_code=400, detail="No valid search parameter provided")
+        result = list(self.user_dao.collection.find(query, {"password": 0}))
+        for user in result:
+            user["_id"] = str(user["_id"])
+        if not result:
+            raise HTTPException(status_code=404, detail="User not found")
+        return result
+
+    def follow_user(self, current_user_id: str, target_user_id: str):
+        return self.user_dao.follow_user(current_user_id, target_user_id)
+
+    def unfollow_user(self, current_user_id: str, target_user_id: str):
+        return self.user_dao.unfollow_user(current_user_id, target_user_id)
 

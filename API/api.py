@@ -13,6 +13,7 @@ from auth.dependencies import get_current_user
 # ------------------------
 Manager = DAO_Manager()
 class User(BaseModel):
+    full_name: str
     phone_number: str
     username: str
     email: str
@@ -276,20 +277,33 @@ def get_comments_replied(comment_id: str):
 
 @app.get("/users")
 def get_users():
-    users = Manager.get_users()
-    return {"users": users}
+    try:
+        users = Manager.get_users()
+        return {"users": users}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/search/users")
-def search_users(query: str):
-    return {"query": query, "results": []}
+@app.get("/users/search")
+def search_user(
+    user_id: str = None,
+    email: str = None,
+    username: str = None,
+    phone_number: str = None
+):
+    result = Manager.search_user(user_id, email, username, phone_number)
+    return {"users": result}
 
 @app.post("/users/{user_id}/follow")
-def follow_user(user_id: str):
-    return {"message": "User followed", "user_id": user_id}
+def follow_user(user_id: str, current_user_id: str = Depends(get_current_user)):
+    result = Manager.follow_user(current_user_id, user_id)
+    return result
 
 @app.post("/users/{user_id}/unfollow")
-def unfollow_user(user_id: str):
-    return {"message": "User unfollowed", "user_id": user_id}
+def unfollow_user(user_id: str, current_user_id: str = Depends(get_current_user)):
+    result = Manager.unfollow_user(current_user_id, user_id)
+    return result
 
 # ------------------------
 # Notification
