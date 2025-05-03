@@ -38,35 +38,29 @@ class Comment_dao:
         file.file.seek(0)  # Reset file pointer after validation
         return file_size
 
-    def comment_post(self, post_id: str, comment: Comment, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
+    def comment_post(self,post_id: str, user_id: str,  content: str, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
         try:
             # Kiểm tra bài post có tồn tại không
             post_collection = self.db["post"]
             post = post_collection.find_one({"post_id": post_id})
+            print(f"Checking post_id: {post_id}")  # log
+
             if not post:
                 raise HTTPException(status_code=404, detail="Post not found")
 
             # Kiểm tra user có tồn tại không
             user_collection = self.db["user"]
-            user = user_collection.find_one({"user_id": comment.user_id})
+            user = user_collection.find_one({"user_id": user_id})
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
 
-            # Nếu là reply, kiểm tra parent comment có tồn tại không
-            if comment.parent_comment_id:
-                parent_comment = self.collection.find_one({"comment_id": comment.parent_comment_id})
-                if not parent_comment:
-                    raise HTTPException(status_code=404, detail="Parent comment not found")
-                if parent_comment["post_id"] != post_id:
-                    raise HTTPException(status_code=400, detail="Parent comment does not belong to this post")
-
-            # Tạo comment mới
+            # Tạo comment mới (chỉ cho comment gốc, không phải reply)
             comment_dict = {
                 "comment_id": str(uuid.uuid4()),
                 "post_id": post_id,
-                "user_id": comment.user_id,
-                "content": comment.content,
-                "parent_comment_id": comment.parent_comment_id,
+                "user_id": user_id,
+                "content": content,
+                "parent_comment_id": None,
                 "image_id": None,
                 "video_id": None,
                 "likes": 0,
@@ -117,18 +111,11 @@ class Comment_dao:
             # Thêm comment vào database
             self.collection.insert_one(comment_dict)
 
-            # Nếu là comment gốc (không phải reply), tăng comments count của post
-            if not comment.parent_comment_id:
-                post_collection.update_one(
-                    {"post_id": post_id},
-                    {"$inc": {"comments": 1}}
-                )
-            else:
-                # Nếu là reply, tăng replies count của parent comment
-                self.collection.update_one(
-                    {"comment_id": comment.parent_comment_id},
-                    {"$inc": {"replies": 1}}
-                )
+            # Tăng comments count của post
+            post_collection.update_one(
+                {"post_id": post_id},
+                {"$inc": {"comments": 1}}
+            )
 
             return comment_dict
 
@@ -148,100 +135,99 @@ class Comment_dao:
                     pass
             raise HTTPException(status_code=500, detail=f"Failed to create comment: {str(e)}")
 
-    def reply_comment(self, comment_id: str, comment: Comment, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
+    def reply_comment(self, comment_id: str, user_id: str, content: str, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
         try:
-            # Get parent comment
-            parent_comment = self.collection.find_one({"comment_id": comment_id})
-            if not parent_comment:
+            # 1. Kiểm tra comment cha
+            parent = self.collection.find_one({"comment_id": comment_id})
+            if not parent:
                 raise HTTPException(status_code=404, detail="Parent comment not found")
 
-            # Create reply dictionary
-            reply_dict = {
+            # 2. (Tuỳ chọn) kiểm tra user tồn tại
+            user = self.db["user"].find_one({"user_id": user_id})
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            # 3. Tạo reply dict
+            reply = {
                 "comment_id": str(uuid.uuid4()),
-                "post_id": parent_comment["post_id"],
-                "user_id": comment.user_id,
-                "content": comment.content,
+                "post_id": parent["post_id"],
+                "user_id": user_id,
+                "content": content,
                 "parent_comment_id": comment_id,
                 "image_id": None,
                 "video_id": None,
                 "likes": 0,
                 "liked_by": [],
                 "replies": 0,
-                "created_at": datetime.now(),
-                "updated_at": datetime.now()
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
             }
 
-            # Handle image upload
+            # 4. Xử lý image
             if image:
-                try:
-                    self._validate_file(image, is_image=True)
-                    image_filename = f"comment_images/{reply_dict['comment_id']}_{image.filename}"
-                    image_content = image.file.read()
-                    image_id = gridfs_client.upload_file(
-                        file_data=image_content,
-                        file_name=image_filename,
-                        content_type=image.content_type,
-                        is_image=True
-                    )
-                    reply_dict["image_id"] = image_id
-                except Exception as e:
-                    raise HTTPException(status_code=400, detail=f"Image upload failed: {str(e)}")
+                self._validate_file(image, is_image=True)
+                fn = f"comment_images/{reply['comment_id']}_{image.filename}"
+                data = image.file.read()
+                reply["image_id"] = gridfs_client.upload_file(
+                    file_data=data,
+                    file_name=fn,
+                    content_type=image.content_type,
+                    is_image=True
+                )
+                image.file.close()
 
-            # Handle video upload
+            # 5. Xử lý video
             if video:
-                try:
-                    self._validate_file(video, is_image=False)
-                    video_filename = f"comment_videos/{reply_dict['comment_id']}_{video.filename}"
-                    video_content = video.file.read()
-                    video_id = gridfs_client.upload_file(
-                        file_data=video_content,
-                        file_name=video_filename,
-                        content_type=video.content_type,
-                        is_image=False
-                    )
-                    reply_dict["video_id"] = video_id
-                except Exception as e:
-                    # If video upload fails and we have an image, we should clean up the image
-                    if reply_dict["image_id"]:
-                        try:
-                            gridfs_client.delete_file(reply_dict["image_id"], is_image=True)
-                        except:
-                            pass
-                    raise HTTPException(status_code=400, detail=f"Video upload failed: {str(e)}")
-
-            # Insert reply into database
-            self.collection.insert_one(reply_dict)
+                self._validate_file(video, is_image=False)
+                fn = f"comment_videos/{reply['comment_id']}_{video.filename}"
+                data = video.file.read()
+                reply["video_id"] = gridfs_client.upload_file(
+                    file_data=data,
+                    file_name=fn,
+                    content_type=video.content_type,
+                    is_image=False
+                )
+                video.file.close()
             
-            # Update parent comment's reply count
+            # 6. Lưu reply và tăng count
+            self.collection.insert_one(reply)
+
+            # Cập nhật replies count của comment cha
             self.collection.update_one(
                 {"comment_id": comment_id},
                 {"$inc": {"replies": 1}}
             )
 
-            return reply_dict
+            # ✅ Cập nhật tổng comment count trong bài post
+            self.db["post"].update_one(
+                {"post_id": parent["post_id"]},
+                {"$inc": {"comments": 1}}
+)
+
+            return reply
 
         except HTTPException:
             raise
         except Exception as e:
-            # Clean up uploaded files if database insertion fails
-            if "image_id" in locals() and reply_dict.get("image_id"):
-                try:
-                    gridfs_client.delete_file(reply_dict["image_id"], is_image=True)
-                except:
-                    pass
-            if "video_id" in locals() and reply_dict.get("video_id"):
-                try:
-                    gridfs_client.delete_file(reply_dict["video_id"], is_image=False)
-                except:
-                    pass
-            raise HTTPException(status_code=500, detail=f"Failed to create reply: {str(e)}")
+            # Dọn rác nếu có image/video đã up lên
+            if reply.get("image_id"):
+                try: gridfs_client.delete_file(reply["image_id"], is_image=True)
+                except: pass
+            if reply.get("video_id"):
+                try: gridfs_client.delete_file(reply["video_id"], is_image=False)
+                except: pass
+            raise HTTPException(status_code=500, detail=f"Failed to create reply: {e}")
 
-    def edit_comment(self, comment_id: str, content: str):
+    def edit_comment(self, comment_id: str, content: str, user_id: str):
         try:
             # Check if comment exists
             comment = self.collection.find_one({"comment_id": comment_id})
             if not comment:
                 raise HTTPException(status_code=404, detail="Comment not found")
+
+            # Check if user is the comment creator
+            if comment["user_id"] != user_id:
+                raise HTTPException(status_code=403, detail="You are not authorized to edit this comment")
 
             # Update comment content
             self.collection.update_one(
@@ -263,12 +249,16 @@ class Comment_dao:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to edit comment: {str(e)}")
 
-    def delete_comment(self, comment_id: str):
+    def delete_comment(self, comment_id: str, user_id: str):
         try:
             # Check if comment exists
             comment = self.collection.find_one({"comment_id": comment_id})
             if not comment:
                 raise HTTPException(status_code=404, detail="Comment not found")
+
+            # Check if user is the comment creator
+            if comment["user_id"] != user_id:
+                raise HTTPException(status_code=403, detail="You are not authorized to delete this comment")
 
             # If this is a parent comment, update post's comment count
             if not comment.get("parent_comment_id"):
@@ -338,7 +328,7 @@ class Comment_dao:
     def get_comments(self, post_id: str):
         try:
             # Get all comments for the post
-            comments = self.collection.find({"post_id": post_id, "parent_comment_id": None})
+            comments = self.collection.find({"post_id": post_id})
             
             results = []
             for comment in comments:

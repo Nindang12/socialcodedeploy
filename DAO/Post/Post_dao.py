@@ -40,12 +40,12 @@ class Post_dao:
         file.file.seek(0)
         return file_size, file_content
 
-    def create_post(self, post: Post, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
+    def create_post(self, user_id: str, content: str, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
         # Create post dictionary from Post object
         post_dict = {
             "post_id": str(uuid.uuid4()),
-            "user_id": post.user_id,
-            "content": post.content,
+            "user_id": user_id,
+            "content": content,
             "image_id": None,
             "video_id": None,
             "likes": 0,
@@ -130,15 +130,41 @@ class Post_dao:
             print(f"Error getting post: {str(e)}")
             return None
 
-    def edit_post(self, post_id: str, content: str):
+    def edit_post(self, post_id: str, content: str, user_id: str):
         try:
-            self.collection.update_one({"post_id": post_id}, {"$set": {"content": content}})
+            # Check if post exists
+            post = self.collection.find_one({"post_id": post_id})
+            if not post:
+                raise HTTPException(status_code=404, detail="Post not found")
+
+            # Check if user is the post creator
+            if post["user_id"] != user_id:
+                raise HTTPException(status_code=403, detail="You are not authorized to edit this post")
+
+            self.collection.update_one(
+                {"post_id": post_id}, 
+                {
+                    "$set": {
+                        "content": content,
+                        "updated_at": datetime.now()
+                    }
+                }
+            )
             return {"message": "Post updated successfully"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to update post: {str(e)}")
 
-    def delete_post(self, post_id: str):
+    def delete_post(self, post_id: str, user_id: str):
         try:
+            # Check if post exists
+            post = self.collection.find_one({"post_id": post_id})
+            if not post:
+                raise HTTPException(status_code=404, detail="Post not found")
+
+            # Check if user is the post creator
+            if post["user_id"] != user_id:
+                raise HTTPException(status_code=403, detail="You are not authorized to delete this post")
+
             self.collection.delete_one({"post_id": post_id})
             return {"message": "Post deleted successfully"}
         except Exception as e:

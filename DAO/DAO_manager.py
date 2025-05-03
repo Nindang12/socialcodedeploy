@@ -34,17 +34,17 @@ class DAO_Manager:
     def authenticate_user(self, phone_number: str, email: str, username: str, password: str):
         return self.user_dao.authenticate_user(phone_number, email, username, password)
     # Post DAO
-    def create_post(self, post: Post, image: UploadFile = None, video: UploadFile = None):
-        return self.post_dao.create_post(post, image, video)
+    def create_post(self, user_id: str, content: str, image: UploadFile = None, video: UploadFile = None):
+        return self.post_dao.create_post(user_id, content, image, video)
 
     def get_post(self, post_id: str):
         return self.post_dao.get_post(post_id)
 
-    def edit_post(self, post_id: str, content: str):
-        return self.post_dao.edit_post(post_id, content)
+    def edit_post(self, post_id: str, content: str, user_id: str):
+        return self.post_dao.edit_post(post_id, content, user_id)
 
-    def delete_post(self, post_id: str):
-        return self.post_dao.delete_post(post_id)
+    def delete_post(self, post_id: str, user_id: str):
+        return self.post_dao.delete_post(post_id, user_id)
     
     def like_post(self, post_id: str, user_id: str):
         return self.post_dao.like_post(post_id, user_id)
@@ -55,23 +55,27 @@ class DAO_Manager:
     def search_posts(self, query: str):
         return self.post_dao.search_posts(query)
     
-    def comment_post(self, post_id: str, comment: Comment, image: UploadFile = None, video: UploadFile = None):
-        return self.comment_dao.comment_post(post_id, comment, image, video)
+    def comment_post(self, post_id: str, user_id: str, comment: str, image: UploadFile = None, video: UploadFile = None):
+        return self.comment_dao.comment_post(post_id, user_id, comment, image, video)
     
-    def reply_comment(self, comment_id: str, comment: Comment, image: UploadFile = None, video: UploadFile = None):
-        return self.comment_dao.reply_comment(comment_id, comment, image, video)
+    def reply_comment(self, comment_id: str, user_id: str, content: str, image: UploadFile = None, video: UploadFile = None):
+        return self.comment_dao.reply_comment(comment_id, user_id, content, image, video)
     
-    def edit_comment(self, comment_id: str, content: str):
-        return self.comment_dao.edit_comment(comment_id, content)
+    def edit_comment(self, comment_id: str, content: str, user_id: str):
+        return self.comment_dao.edit_comment(comment_id, content, user_id)
     
-    def delete_comment(self, comment_id: str):
-        return self.comment_dao.delete_comment(comment_id)
+    def delete_comment(self, comment_id: str, user_id: str):
+        return self.comment_dao.delete_comment(comment_id, user_id)
     
     def like_comment(self, comment_id: str, user_id: str):
         return self.comment_dao.like_comment(comment_id, user_id)
     
     def get_comments(self, post_id: str):
         return self.comment_dao.get_comments(post_id)
+    
+    def get_replies(self, comment_id: str):
+        return self.comment_dao.get_replies(comment_id)
+    
     def get_users(self):
         return self.user_dao.get_users()
 

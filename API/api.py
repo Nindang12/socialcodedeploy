@@ -7,13 +7,12 @@ import json
 from fastapi.responses import JSONResponse
 from bson import ObjectId
 from datetime import datetime
-
+from auth.dependencies import get_current_user
 # ------------------------
 # Mock Models and Schemas
 # ------------------------
 Manager = DAO_Manager()
 class User(BaseModel):
-    full_name: str
     phone_number: str
     username: str
     email: str
@@ -80,14 +79,12 @@ def custom_json_serializer(obj: Any) -> Any:
 
 @app.post("/posts")
 async def create_post(
-    post_data: str = Form(...),
+    user_id: str = Depends(get_current_user),
+    content: str = Form(...),
     image: UploadFile = File(None),
     video: UploadFile = File(None)
 ):
-    post_dict = json.loads(post_data)
-    post_create = PostCreate(**post_dict)
-    
-    result = Manager.create_post(post_create, image, video)
+    result = Manager.create_post(user_id, content, image, video)
         
     # Use custom serializer for the response
     return JSONResponse(
@@ -104,8 +101,8 @@ def get_posts(post_id: str):
     return post
 
 @app.put("/posts/{post_id}")
-def edit_post(post_id: str, content: str = Form(...)):
-    post = Manager.edit_post(post_id, content)
+def edit_post(post_id: str, content: str = Form(...), user_id: str = Depends(get_current_user)):
+    post = Manager.edit_post(post_id, content, user_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return JSONResponse(
@@ -115,8 +112,8 @@ def edit_post(post_id: str, content: str = Form(...)):
     )
 
 @app.delete("/posts/{post_id}")
-def delete_post(post_id: str):
-    post = Manager.delete_post(post_id)
+def delete_post(post_id: str, user_id: str = Depends(get_current_user)):
+    post = Manager.delete_post(post_id, user_id )
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return JSONResponse(
@@ -126,7 +123,7 @@ def delete_post(post_id: str):
     )
 
 @app.post("/posts/{post_id}/like")
-def like_post(post_id: str, user_id: str = Form(...)):
+def like_post(post_id: str, user_id: str = Depends(get_current_user)):
     post = Manager.like_post(post_id, user_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -137,7 +134,7 @@ def like_post(post_id: str, user_id: str = Form(...)):
     )
 
 @app.post("/posts/{post_id}/repost")
-def repost(post_id: str, user_id: str = Form(...)):
+def repost(post_id: str, user_id: str = Depends(get_current_user)):
     post = Manager.repost(post_id, user_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -159,76 +156,27 @@ def search_posts(query: str):
 @app.post("/posts/{post_id}/comment")
 async def comment_post(
     post_id: str,
-    comment_data: str = Form(...),
+    user_id: str = Depends(get_current_user),
+    content: str = Form(...),
     image: UploadFile = File(None),
     video: UploadFile = File(None)
 ):
-    try:
-        # Parse comment data
-        try:
-            comment_dict = json.loads(comment_data)
-            required_fields = ["user_id", "content"]
-            for field in required_fields:
-                if field not in comment_dict:
-                    raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
-        except json.JSONDecodeError:
-            raise HTTPException(status_code=400, detail="Invalid JSON format for comment_data")
-
-        # Create Comment object
-        comment = Comment(
-            user_id=comment_dict["user_id"],
-            post_id=post_id,
-            content=comment_dict["content"],
-            parent_comment_id=comment_dict.get("parent_comment_id")
+    result = Manager.comment_post(post_id, user_id, content, image, video)
+    return JSONResponse(
+        content=json.loads(
+            json.dumps(result, cls=CustomJSONEncoder)
         )
-        
-        # Validate file types if provided
-        if image and not image.content_type.startswith('image/'):
-            raise HTTPException(status_code=400, detail="Invalid image file type")
-        if video and not video.content_type.startswith('video/'):
-            raise HTTPException(status_code=400, detail="Invalid video file type")
-        
-        # Create comment with files
-        result = Manager.comment_post(post_id, comment, image, video)
-        if not result:
-            raise HTTPException(status_code=404, detail="Post not found")
-            
-        return JSONResponse(
-            content=json.loads(
-                json.dumps(result, cls=CustomJSONEncoder)
-            )
-        )
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create comment: {str(e)}")
+    )
 
 @app.post("/comments/{comment_id}/reply")
 async def reply_comment(
     comment_id: str,
-    comment_data: str = Form(...),
+    user_id: str = Depends(get_current_user),
+    content: str = Form(...),
     image: UploadFile = File(None),
     video: UploadFile = File(None)
 ):
     try:
-        # Parse comment data
-        try:
-            comment_dict = json.loads(comment_data)
-            required_fields = ["user_id", "post_id", "content"]
-            for field in required_fields:
-                if field not in comment_dict:
-                    raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
-        except json.JSONDecodeError:
-            raise HTTPException(status_code=400, detail="Invalid JSON format for comment_data")
-
-        # Create Comment object
-        comment = Comment(
-            user_id=comment_dict["user_id"],
-            post_id=comment_dict["post_id"],
-            content=comment_dict["content"],
-            parent_comment_id=comment_id
-        )
-        
         # Validate file types if provided
         if image and not image.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="Invalid image file type")
@@ -236,7 +184,7 @@ async def reply_comment(
             raise HTTPException(status_code=400, detail="Invalid video file type")
         
         # Create reply with files
-        result = Manager.reply_comment(comment_id, comment, image, video)
+        result = Manager.reply_comment(comment_id, user_id, content, image, video)
         if not result:
             raise HTTPException(status_code=404, detail="Comment not found")
             
@@ -251,9 +199,9 @@ async def reply_comment(
         raise HTTPException(status_code=500, detail=f"Failed to create reply: {str(e)}")
 
 @app.put("/comments/{comment_id}")
-def edit_comment(comment_id: str, content: str = Form(...)):
+def edit_comment(comment_id: str, content: str = Form(...), user_id: str = Depends(get_current_user)):
     try:
-        result = Manager.edit_comment(comment_id, content)
+        result = Manager.edit_comment(comment_id, content, user_id)
         if not result:
             raise HTTPException(status_code=404, detail="Comment not found")
         return JSONResponse(
@@ -267,9 +215,9 @@ def edit_comment(comment_id: str, content: str = Form(...)):
         raise HTTPException(status_code=500, detail=f"Failed to edit comment: {str(e)}")
 
 @app.delete("/comments/{comment_id}")
-def delete_comment(comment_id: str):
+def delete_comment(comment_id: str, user_id: str = Depends(get_current_user)):
     try:
-        result = Manager.delete_comment(comment_id)
+        result = Manager.delete_comment(comment_id, user_id)
         if not result:
             raise HTTPException(status_code=404, detail="Comment not found")
         return JSONResponse(
@@ -283,7 +231,7 @@ def delete_comment(comment_id: str):
         raise HTTPException(status_code=500, detail=f"Failed to delete comment: {str(e)}")
 
 @app.post("/comments/{comment_id}/like")
-def like_comment(comment_id: str, user_id: str = Form(...)):
+def like_comment(comment_id: str, user_id: str = Depends(get_current_user)):
     try:
         result = Manager.like_comment(comment_id, user_id)
         if not result:
@@ -312,9 +260,19 @@ def get_comments(post_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get comments: {str(e)}")
 
-# ------------------------
-# User Endpoints
-# ------------------------
+@app.get("/comments/{comment_id}/replied")
+def get_comments_replied(comment_id: str):
+    try:
+        reply_comment = Manager.get_replies(comment_id)
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(reply_comment, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get comments replies: {str(e)}")
 
 @app.get("/users")
 def get_users():
