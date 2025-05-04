@@ -8,6 +8,8 @@ from fastapi.responses import JSONResponse
 from bson import ObjectId
 from datetime import datetime
 from auth.dependencies import get_current_user
+from fastapi.middleware.cors import CORSMiddleware
+
 # ------------------------
 # Mock Models and Schemas
 # ------------------------
@@ -35,12 +37,19 @@ class Comment(BaseModel):
 # ------------------------
 app = FastAPI()
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.post("/signup")
 def signup(user: User):
     print(user)
-    if (Manager.get_user_by_phone_number(user.phone_number) or
-        Manager.get_user_by_email(user.email) or
-        Manager.get_user_by_username(user.username)):
+    if (Manager.check_user_exists(phone_number=user.phone_number, email=user.email, username=user.username)):
         raise HTTPException(status_code=400, detail="User already exists")
     Manager.create_user(user)
     return {"message": "User signed up", "user": user} 
@@ -93,13 +102,17 @@ async def create_post(
             json.dumps(result, cls=CustomJSONEncoder)
         )
     )
+@app.get("/media/{file_id}")
+def get_media(file_id: str, is_image: bool = True):
+    media = Manager.get_media(file_id, is_image)
+    return media
 
 @app.get("/posts")
-def get_posts(post_id: str):
-    post = Manager.get_post(post_id)
-    if not post:
+def get_posts():
+    posts = Manager.get_posts()
+    if not posts:
         raise HTTPException(status_code=404, detail="Post not found")
-    return post
+    return posts
 
 @app.put("/posts/{post_id}")
 def edit_post(post_id: str, content: str = Form(...), user_id: str = Depends(get_current_user)):
@@ -284,6 +297,11 @@ def get_users():
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/users/{user_id}")
+def get_user(user_id: str):
+    user = Manager.get_user(user_id)
+    return {"user": user}
 
 @app.get("/users/search")
 def search_user(

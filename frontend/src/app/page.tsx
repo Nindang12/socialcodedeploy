@@ -47,7 +47,8 @@ interface PostResponse {
   id: number;
   user_id: number;
   content: string;
-  image?: string;
+  image_id?: string;
+  video_id?: string;
   created_at: string;
   likes: number;
   comments: number;
@@ -106,26 +107,28 @@ export default function Home() {
                 'Authorization': `Bearer ${token}`,
               },
             });
-    
-            console.log('User response data:', userRes.data);
-            console.log('Username from API:', userRes.data.user?.username);
-            
+
             const username = userRes.data.user?.username || `user_${post.user_id}`;
-            console.log('Final username:', username);
+            const imageUrl = post.image_id ? `http://127.0.0.1:8000/media/${post.image_id}` : "";
+            const videoUrl = post.video_id ? `http://127.0.0.1:8000/media/${post.video_id}` : "";
 
             return {
               ...post,
               time: formatTime(post.created_at),
               avatar: `https://placehold.co/40x40?text=${post.user_id}`,
               username: username,
+              image: imageUrl,
+              video: videoUrl,
             };
           } catch (error) {
             console.error('Error fetching user:', error);
             return {
               ...post,
-              time: formatTime(post.created_at),
+              time: formatTime(post.created_at), 
               avatar: `https://placehold.co/40x40?text=${post.user_id}`,
               username: `user_${post.user_id}`,
+              image: "",
+              video: "",
             };
           }
         }));
@@ -139,7 +142,7 @@ export default function Home() {
       }
     };
     
-
+    
     fetchPosts();
   }, [router]);
 
@@ -188,7 +191,8 @@ export default function Home() {
         time: formatTime(response.data.created_at),
         avatar: `https://placehold.co/40x40?text=${response.data.user_id}`,
         username: userRes.data.user.username,
-        image: response.data.image || "",
+        image: response.data.image_id || "",
+        video: response.data.video_id || "",
         likes: typeof response.data.likes === "number" ? response.data.likes : 0,
         comments: typeof response.data.comments === "number" ? response.data.comments : 0,
         reposts: typeof response.data.reposts === "number" ? response.data.reposts : 0,
@@ -339,7 +343,7 @@ export default function Home() {
   );
 }
 
-function Post({ id, avatar, username, time, content, image, likes, comments, reposts, saves }: typeof posts[0]) {
+function Post({ id, avatar, username, time, content, image, video, likes, comments, reposts, saves }: typeof posts[0] & { video?: string }) {
   const [showComment, setShowComment] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
@@ -351,6 +355,7 @@ function Post({ id, avatar, username, time, content, image, likes, comments, rep
   const [editMode, setEditMode] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const [isFollowing, setIsFollowing] = useState(false);
+
 
   const handleLike = () => {
     setLiked(!liked);
@@ -422,7 +427,8 @@ function Post({ id, avatar, username, time, content, image, likes, comments, rep
 
       {/* Content */}
       <p className="mt-2">{content}</p>
-      {image && <img src={image} alt="Post" className="mt-2 rounded-lg" />}
+      {image && <img src={`${image}`} alt="Post" className="mt-2 rounded-lg" />}
+      {video && <video src={`${video}`} controls className="mt-2 rounded-lg w-full" />}
 
       {/* Action Buttons */}
       <div className="flex gap-4 text-gray-500 mt-3">

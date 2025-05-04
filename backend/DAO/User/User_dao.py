@@ -12,6 +12,9 @@ class User_dao:
         self.collection = self.db["user"]
         self.token_blacklist = self.db["token_blacklist"]
     def create_user(self, user: User):
+        # Validate required fields
+        if not user.email or not user.username or not user.phone_number:
+            raise HTTPException(status_code=400, detail="Email, username and phone number are required fields")
        
         # Hash password before storing
         salt = bcrypt.gensalt()
@@ -28,7 +31,12 @@ class User_dao:
         return self.collection.insert_one(user)
 
     def get_user(self, user_id: str):
-        return self.collection.find_one({"user_id": user_id})
+        user = self.collection.find_one({"user_id": user_id})
+        if user:
+            user["_id"] = str(user["_id"])
+            return user
+        return None
+        
     def get_user_by_full_name(self, full_name: str):
         return self.collection.find_one({"full_name": full_name})
     def get_user_by_phone_number(self, phone_number: str):

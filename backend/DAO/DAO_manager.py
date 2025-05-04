@@ -20,6 +20,15 @@ class DAO_Manager:
     def get_user(self, user_id: str):
         return self.user_dao.get_user(user_id)
     
+    def check_user_exists(self, phone_number: str = None, email: str = None, username: str = None):
+        if phone_number and self.user_dao.get_user_by_phone_number(phone_number):
+            return True
+        if email and self.user_dao.get_user_by_email(email):
+            return True 
+        if username and self.user_dao.get_user_by_username(username):
+            return True
+        return False
+
     def get_user_by_phone_number(self, phone_number: str):
         return self.user_dao.get_user_by_phone_number(phone_number)
     
@@ -38,9 +47,12 @@ class DAO_Manager:
     def create_post(self, user_id: str, content: str, image: UploadFile = None, video: UploadFile = None):
         return self.post_dao.create_post(user_id, content, image, video)
 
-    def get_post(self, post_id: str):
-        return self.post_dao.get_post(post_id)
+    def get_posts(self):
+        return self.post_dao.get_posts()
 
+    def get_media(self, file_id: str, is_image: bool = True):
+        return self.post_dao.get_media(file_id, is_image)
+        
     def edit_post(self, post_id: str, content: str, user_id: str):
         return self.post_dao.edit_post(post_id, content, user_id)
 

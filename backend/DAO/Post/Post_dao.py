@@ -6,7 +6,8 @@ from DAO.GridFSConfig import gridfs_client
 from DAO.Post.Post import Post
 from typing import Optional
 import os
-
+from fastapi.responses import StreamingResponse
+from io import BytesIO
 class Post_dao:
     def __init__(self):
         self.db = DatabaseConnection.get_db()
@@ -118,6 +119,54 @@ class Post_dao:
                     pass
             raise HTTPException(status_code=500, detail=f"Failed to create post: {str(e)}")
 
+    def get_media(self, file_id: str, is_image: bool = True):
+        try:
+            file_data = gridfs_client.get_file(file_id, is_image=is_image)
+            if not file_data:
+                raise HTTPException(status_code=404, detail="File not found")
+
+            if hasattr(file_data, 'read'):
+                content_type = getattr(file_data, 'content_type', 'application/octet-stream')
+                file_size = getattr(file_data, 'length', None)
+
+                if file_size:
+                    # Xử lý Range
+                    range_header = request.headers['range']
+                    range_value = range_header.replace("bytes=", "").split("-")
+                    start = int(range_value[0])
+                    end = int(range_value[1]) if range_value[1] else file_size - 1
+                    chunk_size = end - start + 1
+
+                    file_data.seek(start)
+                    data = file_data.read(chunk_size)
+
+                    headers = {
+                        "Content-Range": f"bytes {start}-{end}/{file_size}",
+                        "Accept-Ranges": "bytes",
+                        "Content-Length": str(chunk_size),
+                        "Content-Type": content_type,
+                    }
+
+                    return Response(data, status_code=206, headers=headers)
+
+                return StreamingResponse(file_data, media_type=content_type)
+
+            # Fallback nếu là dict (như ảnh custom...)
+            if isinstance(file_data, dict):
+                content_type = file_data.get('content_type', 'application/octet-stream')
+                filename = file_data.get('filename')
+                if not filename:
+                    raise HTTPException(status_code=500, detail="File content not found")
+                if isinstance(file_data, bytes):    
+                    from io import BytesIO
+                    file_data = BytesIO(file_data)
+                return StreamingResponse(file_data, media_type=content_type)
+
+            raise HTTPException(status_code=500, detail="Unknown file data type")
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to get media: {str(e)}")
+
     def get_post(self, post_id: str):
         try:
             post = self.collection.find_one({"post_id": post_id})
@@ -129,7 +178,13 @@ class Post_dao:
         except Exception as e:
             print(f"Error getting post: {str(e)}")
             return None
-
+    def get_posts(self):
+        try:
+            posts = self.collection.find()
+            return [Post.from_dict(post) for post in posts]
+        except Exception as e:
+            print(f"Error getting posts: {str(e)}")
+            return []
     def edit_post(self, post_id: str, content: str, user_id: str):
         try:
             # Check if post exists
