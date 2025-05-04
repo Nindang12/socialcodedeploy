@@ -7,7 +7,7 @@ import axios from "axios";
 const posts = [
   {
     id: 1,
-    avatar: "https://placehold.co/40x40",
+    avatar: "https://placehold.co/40x40", 
     username: "username",
     time: "19 giờ",
     content: "content",
@@ -20,7 +20,7 @@ const posts = [
   {
     id: 2,
     avatar: "https://placehold.co/40x40",
-    username: "username",
+    username: "username", 
     time: "1 ngày",
     content: "content",
     image: "https://placehold.co/500x200",
@@ -33,7 +33,7 @@ const posts = [
     id: 3,
     avatar: "https://placehold.co/40x40",
     username: "randomuser",
-    time: "2 ngày",
+    time: "2 ngày", 
     content: "Just finished my first marathon! 🏃‍♂️",
     image: "https://placehold.co/500x200",
     likes: 289,
@@ -43,18 +43,155 @@ const posts = [
   },
 ];
 
+interface PostResponse {
+  id: number;
+  user_id: number;
+  content: string;
+  image?: string;
+  created_at: string;
+  likes: number;
+  comments: number;
+  reposts: number;
+  saves: number;
+}
+
+interface UserResponse {
+  user: {
+    username: string;
+    // ... các trường khác nếu cần
+  };
+}
+
 export default function Home() {
   const router = useRouter();
   const [showUploadPost, setShowUploadPost] = useState(false);
   const [content, setContent] = useState("");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [localPosts, setLocalPosts] = useState(posts);
+
+  const formatTime = (createdAt: string) => {
+    const now = new Date();
+    const postDate = new Date(createdAt);
+    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 24) {
+      return `${diffInHours} giờ`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} ngày`;
+    }
+  };
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+    
+        const res = await axios.get<PostResponse[]>("http://127.0.0.1:8000/posts", {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+    
+        // Fetch thêm username từ API người dùng nếu chưa có trong bài viết
+        const postsWithUsernames = await Promise.all(res.data.map(async (post) => {
+          try {
+            const userRes = await axios.get<UserResponse>(`http://127.0.0.1:8000/users/${post.user_id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+    
+            console.log('User response data:', userRes.data);
+            console.log('Username from API:', userRes.data.user?.username);
+            
+            const username = userRes.data.user?.username || `user_${post.user_id}`;
+            console.log('Final username:', username);
+
+            return {
+              ...post,
+              time: formatTime(post.created_at),
+              avatar: `https://placehold.co/40x40?text=${post.user_id}`,
+              username: username,
+            };
+          } catch (error) {
+            console.error('Error fetching user:', error);
+            return {
+              ...post,
+              time: formatTime(post.created_at),
+              avatar: `https://placehold.co/40x40?text=${post.user_id}`,
+              username: `user_${post.user_id}`,
+            };
+          }
+        }));
+    
+        setLocalPosts(postsWithUsernames as typeof posts[0][]);
+      } catch (err: any) {
+        console.error("Error fetching posts:", err);
+        if (err.response?.status === 401) {
+          router.push('/login');
+        }
+      }
+    };
+    
+
+    fetchPosts();
+  }, [router]);
 
   const onClose = () => {
     setShowUploadPost(false);
   };
 
-  const handlePost = () => {
-    // TODO: Implement post creation
+  const handlePost = async () => {
+    if (!content.trim()) return; // Kiểm tra nội dung không trống
+  
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append("content", content);
+      
+      // Thêm ảnh nếu có
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+  
+      // Thêm video nếu có
+      if (selectedVideo) {
+        formData.append("video", selectedVideo);
+      }
+  
+      const response = await axios.post("http://127.0.0.1:8000/posts", formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      const newPost = response.data as typeof posts[0];
+      setLocalPosts([newPost, ...localPosts]); // Cập nhật danh sách bài viết
+      setContent(""); // Reset lại nội dung
+      setSelectedImage(null); // Reset ảnh đã chọn
+      setSelectedVideo(null); // Reset video đã chọn
+      setShowUploadPost(false); // Đóng modal tạo bài
+    } catch (err) {
+      console.error("Error creating post:", err);
+      const error = err as { response?: { status: number } };
+      if (error.response?.status === 401) {
+        router.push('/login');
+      }
+    }
   };
+  
 
   return (
     <div className="w-full h-screen bg-gray-100 flex flex-col items-center p-4">
@@ -134,9 +271,9 @@ export default function Home() {
           )}
 
           <div className="space-y-4 max-h-[80vh] overflow-y-auto">
-            {posts.map((post) => (
+            {localPosts.map((post) => (
               <div key={post.id} onClick={() => router.push(`/comment/${post.id}`)} className="cursor-pointer">
-                <Post postId={post.id} {...post} />
+                <Post {...post} />
               </div>
             ))}
           </div>
@@ -146,25 +283,27 @@ export default function Home() {
   );
 }
 
-function Post({ postId }: { postId: number }) {
+function Post({ id, avatar, username, time, content, image, likes, comments, reposts, saves }: typeof posts[0]) {
   const [showComment, setShowComment] = useState(false);
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(likes);
   const [reposted, setReposted] = useState(false);
-  const [repostCount, setRepostCount] = useState(0);
+  const [repostCount, setRepostCount] = useState(reposts);
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState(0);
+  const [commentCount, setCommentCount] = useState(comments);
   const [showOptions, setShowOptions] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editedContent, setEditedContent] = useState("");
+  const [editedContent, setEditedContent] = useState(content);
   const [isFollowing, setIsFollowing] = useState(false);
 
   const handleLike = () => {
-    // TODO: Implement like functionality
+    setLiked(!liked);
+    setLikeCount(prev => liked ? prev - 1 : prev + 1);
   };
 
   const handleRepost = () => {
-    // TODO: Implement repost functionality
+    setReposted(!reposted);
+    setRepostCount(prev => reposted ? prev - 1 : prev + 1);
   };
 
   const handleComment = () => {
@@ -188,15 +327,15 @@ function Post({ postId }: { postId: number }) {
       {/* Header */}
       <div className="flex justify-between">
         <div className="flex items-center space-x-3">
-          <img src="https://placehold.co/40x40" alt="Avatar" className="w-10 h-10 rounded-full" />
+          <img src={avatar} alt="Avatar" className="w-10 h-10 rounded-full" />
           <div>
             <div className="flex items-center gap-2">
               <div>
-                <p className="font-semibold">username</p>
-                <p className="text-sm text-gray-500">time</p>
+                <p className="font-semibold">{username}</p>
+                <p className="text-sm text-gray-500">{time}</p>
               </div>
               <button
-                onClick={handleFollowToggle}
+                onClick={() => setIsFollowing(!isFollowing)}
                 className={`text-xs px-3 py-1 rounded-full font-medium ${
                   isFollowing
                     ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
@@ -212,9 +351,7 @@ function Post({ postId }: { postId: number }) {
           <Ellipsis 
             size={20} 
             className="cursor-pointer hover:text-black" 
-            onClick={() => {
-              setShowOptions((prev) => !prev)
-            }}
+            onClick={() => setShowOptions((prev) => !prev)}
           />
         </div>
         {showOptions && (
@@ -228,8 +365,8 @@ function Post({ postId }: { postId: number }) {
       </div>
 
       {/* Content */}
-      <p className="mt-2">content</p>
-      <img src="https://placehold.co/500x200" alt="Post" className="mt-2 rounded-lg" />
+      <p className="mt-2">{content}</p>
+      {image && <img src={image} alt="Post" className="mt-2 rounded-lg" />}
 
       {/* Action Buttons */}
       <div className="flex gap-4 text-gray-500 mt-3">
@@ -240,7 +377,7 @@ function Post({ postId }: { postId: number }) {
         />
         <ActionButton 
           icon={<MessageCircle size={18} />} 
-          count={comments} 
+          count={commentCount} 
           onClick={() => setShowComment((prev) => !prev)}
         />
         <ActionButton 
