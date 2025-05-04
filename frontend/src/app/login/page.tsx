@@ -2,14 +2,19 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const LoginPage: React.FC = () => {
+  const router = useRouter();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     
     try {
       const response = await fetch('http://127.0.0.1:8000/login', {
@@ -27,26 +32,23 @@ const LoginPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Đăng nhập thất bại');
       }
 
       const data = await response.json();
       
-      // Store token in cookie with secure settings
+      // Store token in secure cookie only
       document.cookie = `token=${data.token}; path=/; max-age=604800; secure; samesite=strict`;
-
-      // Store token in localStorage as backup
-      localStorage.setItem('token', data.token);
-
-      // Store user info if needed
-      localStorage.setItem('lastLoginTime', new Date().toISOString());
 
       // Redirect to home page
       router.push('/');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      // Handle error (show error message to user)
+      setError(error.message || 'Có lỗi xảy ra, vui lòng thử lại');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,16 +56,21 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen w-full bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-          Login
+          Đăng nhập
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 text-red-500 text-sm text-center">
+              {error}
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
-                Email / Phone / Username
+                Email / Số điện thoại / Tên đăng nhập
               </label>
               <div className="mt-1">
                 <input
@@ -81,7 +88,7 @@ const LoginPage: React.FC = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                Mật khẩu
               </label>
               <div className="mt-1">
                 <input
@@ -100,10 +107,14 @@ const LoginPage: React.FC = () => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                disabled={loading}
+                className="flex w-full justify-center rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign In
+                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </button>
+              <Link href="/signup" className="text-sm text-gray-500 hover:text-gray-700">
+                Tạo tài khoản mới
+              </Link>
             </div>
           </form>
         </div>

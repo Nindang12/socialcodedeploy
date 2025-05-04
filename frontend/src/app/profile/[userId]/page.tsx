@@ -5,6 +5,9 @@ import { notFound } from 'next/navigation'
 import { Tab } from '@headlessui/react'
 import { MessageCircle, Heart, Repeat, MoreHorizontal } from "lucide-react";
 import { useParams } from 'next/navigation'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface Post {
   id: string
@@ -23,6 +26,10 @@ interface Post {
 
 export default function ProfilePage() {
   const params = useParams()
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState('posts')
+  const [isFollowing, setIsFollowing] = useState(false)
+
   const userId = params.userId as string
 
   // Mock data - replace with API calls later
@@ -124,99 +131,81 @@ export default function ProfilePage() {
     </div>
   )
 
+  const handleTabChange = (tab: string) => {
+    // TODO: Implement tab change functionality
+  };
+
+  const handleFollow = () => {
+    // TODO: Implement follow functionality
+  };
+
   if (!user) {
     notFound()
   }
 
   return (
-    <main className="w-full h-screen bg-gray-100 flex flex-col items-center p-4">
-      <span className='text-sm font-bold mb-4'>{user.username}</span>
-      <div className='max-w-xl w-full h-auto bg-white rounded-2xl shadow-md p-4 space-y-4'>
-        {/* Profile Header */}
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{user.name}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-gray-600">{user.username}</p>
-            </div>
-            <p className="mt-4">{user.bio}</p>
-            <p className="text-gray-600 mt-2">{user.followers} người theo dõi</p>
-          </div>
-
-          <div className="shrink-0">
-            <Image
-              src={user.avatarUrl}
-              alt={`${user.name}'s avatar`}
-              width={80}
-              height={80}
-              className="rounded-full"
-            />
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 mb-6">
-          <button className="flex-1 bg-black text-white py-2 rounded-lg font-medium">
-            Theo dõi
-          </button>
-          <button className="flex-1 bg-white border border-gray-300 py-2 rounded-lg font-medium">
-            Nhắc đến
-          </button>
-        </div>
-
-        {/* Content Tabs */}
-        <Tab.Group>
-          <Tab.List className="flex border-b border-gray-200">
-            <Tab className={({ selected }: { selected: boolean }) =>
-              `px-1 py-4 font-medium outline-none w-1/3 ${
-                selected 
-                  ? 'border-b-2 border-black text-black' 
-                  : 'text-gray-500'
-              }`
-            }>
-              Thread
-            </Tab>
-            <Tab className={({ selected }: { selected: boolean }) =>
-              `px-1 py-4 font-medium ml-8 outline-none w-1/3 ${
-                selected 
-                  ? 'border-b-2 border-black text-black' 
-                  : 'text-gray-500'
-              }`
-            }>
-              Đã thích
-            </Tab>
-            <Tab className={({ selected }: { selected: boolean }) =>
-              `px-1 py-4 font-medium ml-8 outline-none w-1/3 ${
-                selected 
-                  ? 'border-b-2 border-black text-black' 
-                  : 'text-gray-500'
-              }`
-            }>
-              Bài đăng lại
-            </Tab>
-          </Tab.List>
-
-          <Tab.Panels>
-            <Tab.Panel>
-              {posts.length > 0 ? (
-                <div className="divide-y divide-gray-200 h-[540px] overflow-y-auto">
-                  {posts.map(post => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
+    <div className="w-full h-screen bg-gray-100 flex flex-col items-center p-4">
+      <h1 className="text-xl font-bold mb-4">Hồ sơ</h1>
+      <div className="max-w-xl w-full h-auto">
+        <div className="bg-white rounded-2xl shadow-md p-4 space-y-4">
+          {/* Profile header */}
+          <div className="flex items-center space-x-4">
+            <img src="https://placehold.co/100x100" alt="Avatar" className="w-20 h-20 rounded-full" />
+            <div>
+              <h2 className="text-xl font-bold">username</h2>
+              <p className="text-gray-500">@username</p>
+              <div className="flex space-x-4 mt-2">
+                <div>
+                  <span className="font-bold">0</span> bài viết
                 </div>
-              ) : (
-                <EmptyState message="Chưa có thread nào." />
-              )}
-            </Tab.Panel>
-            <Tab.Panel>
-              <EmptyState message="Chưa có bài viết đã thích nào." />
-            </Tab.Panel>
-            <Tab.Panel>
-              <EmptyState message="Chưa có bài đăng lại nào." />
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
+                <div>
+                  <span className="font-bold">0</span> người theo dõi
+                </div>
+                <div>
+                  <span className="font-bold">0</span> đang theo dõi
+                </div>
+              </div>
+            </div>
+            <button
+              className={`px-4 py-2 rounded-lg font-semibold ${
+                isFollowing
+                  ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+              }`}
+              onClick={handleFollow}
+            >
+              {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+            </button>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex border-b">
+            <button
+              className={`px-4 py-2 ${activeTab === 'posts' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+              onClick={() => handleTabChange('posts')}
+            >
+              Bài viết
+            </button>
+            <button
+              className={`px-4 py-2 ${activeTab === 'replies' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+              onClick={() => handleTabChange('replies')}
+            >
+              Trả lời
+            </button>
+            <button
+              className={`px-4 py-2 ${activeTab === 'media' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+              onClick={() => handleTabChange('media')}
+            >
+              Media
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-4">
+            {/* TODO: Implement content based on active tab */}
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   )
 }
