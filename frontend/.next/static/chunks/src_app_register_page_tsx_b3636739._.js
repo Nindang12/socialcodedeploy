@@ -430,7 +430,7 @@ const RegisterPage = ()=>{
         columnNumber: 5
     }, this);
 };
-_s(RegisterPage, "muYnDlVozYN4w6p/rrEbuPaUU+w=");
+_s(RegisterPage, "Lo0nwQZ7FiLdAHfo2fYENlj1HOA=");
 _c = RegisterPage;
 const __TURBOPACK__default__export__ = RegisterPage;
 var _c;

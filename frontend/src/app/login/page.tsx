@@ -1,15 +1,53 @@
 'use client'
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const LoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log({ identifier, password });
+    
+    try {
+      const response = await fetch('http://127.0.0.1:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          full_name: '',
+          phone_number: identifier,
+          username: identifier,
+          email: identifier,
+          password: password
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const data = await response.json();
+      
+      // Store token in cookie with secure settings
+      document.cookie = `token=${data.token}; path=/; max-age=604800; secure; samesite=strict`;
+
+      // Store token in localStorage as backup
+      localStorage.setItem('token', data.token);
+
+      // Store user info if needed
+      localStorage.setItem('lastLoginTime', new Date().toISOString());
+
+      // Redirect to home page
+      router.push('/');
+
+    } catch (error) {
+      console.error('Login error:', error);
+      // Handle error (show error message to user)
+    }
   };
 
   return (
