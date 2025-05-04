@@ -26,7 +26,7 @@ export default function RootLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+    const token = localStorage.getItem('token');
     if (!token && pathname !== '/login' && pathname !== '/signup') {
       router.push('/login');
     }

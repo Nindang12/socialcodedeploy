@@ -148,41 +148,58 @@ export default function Home() {
   };
 
   const handlePost = async () => {
-    if (!content.trim()) return; // Kiểm tra nội dung không trống
-  
+    if (!content.trim()) return;
+
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         router.push('/login');
         return;
       }
-  
+
       const formData = new FormData();
       formData.append("content", content);
-      
-      // Thêm ảnh nếu có
+
       if (selectedImage) {
         formData.append("image", selectedImage);
       }
-  
-      // Thêm video nếu có
       if (selectedVideo) {
         formData.append("video", selectedVideo);
       }
-  
-      const response = await axios.post("http://127.0.0.1:8000/posts", formData, {
+
+      // Gửi post lên server
+      const response = await axios.post<PostResponse>("http://127.0.0.1:8000/posts", formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      const newPost = response.data as typeof posts[0];
-      setLocalPosts([newPost, ...localPosts]); // Cập nhật danh sách bài viết
-      setContent(""); // Reset lại nội dung
-      setSelectedImage(null); // Reset ảnh đã chọn
-      setSelectedVideo(null); // Reset video đã chọn
-      setShowUploadPost(false); // Đóng modal tạo bài
+
+      // Lấy username của user hiện tại
+      const userRes = await axios.get<UserResponse>(`http://127.0.0.1:8000/users/${response.data.user_id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      // Tạo post mới với dữ liệu chuẩn
+      const newPost = {
+        ...response.data,
+        time: formatTime(response.data.created_at),
+        avatar: `https://placehold.co/40x40?text=${response.data.user_id}`,
+        username: userRes.data.user.username,
+        image: response.data.image || "",
+        likes: typeof response.data.likes === "number" ? response.data.likes : 0,
+        comments: typeof response.data.comments === "number" ? response.data.comments : 0,
+        reposts: typeof response.data.reposts === "number" ? response.data.reposts : 0,
+        saves: typeof response.data.saves === "number" ? response.data.saves : 0,
+      };
+
+      setLocalPosts((prevPosts) => [newPost, ...prevPosts]);
+      setContent("");
+      setSelectedImage(null);
+      setSelectedVideo(null);
+      setShowUploadPost(false);
     } catch (err) {
       console.error("Error creating post:", err);
       const error = err as { response?: { status: number } };
@@ -191,7 +208,6 @@ export default function Home() {
       }
     }
   };
-  
 
   return (
     <div className="w-full h-screen bg-gray-100 flex flex-col items-center p-4">
@@ -248,7 +264,47 @@ export default function Home() {
                   </div>
 
                   <div className="flex items-center text-gray-500 space-x-4">
-                    <Image size={20} className="cursor-pointer hover:text-black" />
+                    <label>
+                      <Image size={20} className="cursor-pointer hover:text-black" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setSelectedImage(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <svg width="20" height="20" fill="currentColor" className="cursor-pointer hover:text-black">
+                        <rect width="20" height="20" rx="3" fill="#ccc"/>
+                        <text x="10" y="15" textAnchor="middle" fontSize="10" fill="#333">Video</text>
+                      </svg>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setSelectedVideo(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </label>
+                    {(selectedImage || selectedVideo) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedImage(null);
+                          setSelectedVideo(null);
+                        }}
+                        className="ml-2 text-red-500"
+                      >
+                        Xóa file
+                      </button>
+                    )}
                   </div>
 
                   <div className="flex justify-between items-center border-t pt-3">

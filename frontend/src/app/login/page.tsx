@@ -38,8 +38,7 @@ const LoginPage: React.FC = () => {
 
       const data = await response.json();
       
-      // Store token in secure cookie only
-      document.cookie = `token=${data.token}; path=/; max-age=604800; secure; samesite=strict`;
+      localStorage.setItem('token', data.token);
 
       // Redirect to home page
       router.push('/');
