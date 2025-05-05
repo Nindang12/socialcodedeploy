@@ -84,6 +84,35 @@ export default function Home() {
     }
   };
 
+  const [currentUser, setCurrentUser] = useState<{ username: string } | null>(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
+        const response = await axios.get<UserResponse>("http://127.0.0.1:8000/users/me", {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        setCurrentUser(response.data.user);
+      } catch (err: any) {
+        console.error("Error fetching current user:", err);
+        if (err.response?.status === 401) {
+          router.push('/login');
+        }
+      }
+    };
+
+    fetchCurrentUser();
+  }, [router]);
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -141,7 +170,6 @@ export default function Home() {
         }
       }
     };
-    
     
     fetchPosts();
   }, [router]);
@@ -215,7 +243,7 @@ export default function Home() {
 
   return (
     <div className="w-full h-screen bg-gray-100 flex flex-col items-center p-4">
-      <h1 className="text-xl font-bold mb-4">Trang chủ</h1>
+      <h1 className="text-xl text-black font-bold mb-4">Trang chủ</h1>
       <div className="max-w-xl w-full h-auto">
         <div className="bg-white rounded-2xl shadow-md p-4 space-y-4">
           <div
@@ -227,14 +255,14 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="Có gì mới?"
-                className="flex-1 p-2 border rounded-lg focus:outline-none"
+                className="flex-1 p-2 border rounded-lg text-black focus:outline-none"
               />
               <button className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold">Đăng</button>
             </div>
           </div>
 
           {showUploadPost && (
-            <div className="fixed inset-0 h-full flex items-center justify-center bg-black/50">
+            <div className="fixed inset-0 h-full flex text-black items-center justify-center bg-black/50">
               <div className="bg-white w-[600px] rounded-2xl shadow-lg p-4 translate-x-10">
                 <div className="flex justify-between items-center border-b pb-2">
                   <button className="text-gray-600 hover:text-black">
@@ -249,7 +277,7 @@ export default function Home() {
                     <img src="https://placehold.co/40" alt="Avatar" className="w-10 h-10 rounded-full" />
                     <div className="w-full">
                       <p className="text-sm font-semibold">
-                        nindang035 <span className="text-gray-500">› Thêm chủ đề</span>
+                        {currentUser?.username || 'Loading...'} <span className="text-gray-500">› Thêm chủ đề</span>
                       </p>
                       <textarea
                         className="w-full mt-1 p-2 text-sm border-none outline-none resize-none"
@@ -384,7 +412,7 @@ function Post({ id, avatar, username, time, content, image, video, likes, commen
   };
 
   return (
-    <div className="bg-white p-4 shadow-md w-full rounded-lg border">
+    <div className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
       {/* Header */}
       <div className="flex justify-between">
         <div className="flex items-center space-x-3">

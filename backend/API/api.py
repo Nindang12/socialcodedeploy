@@ -61,6 +61,7 @@ def login(user: User):
         raise HTTPException(status_code=400, detail="User not found",)
     return {"message": "User logged in", "token": create_access_token({"user_id": user["user_id"]})}
 
+
 # @app.post("/logout")
 # def logout(token: str = Query(...)):
 #     Manager.logout(token)
@@ -102,6 +103,12 @@ async def create_post(
             json.dumps(result, cls=CustomJSONEncoder)
         )
     )
+
+@app.get("/users/me")
+def get_current_user(user_id: str = Depends(get_current_user)):
+    user = Manager.get_user(user_id)
+    return {"user": user}
+
 @app.get("/media/{file_id}")
 def get_media(file_id: str, is_image: bool = True):
     media = Manager.get_media(file_id, is_image)
