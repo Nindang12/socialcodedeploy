@@ -61,6 +61,7 @@ def login(user: User):
         raise HTTPException(status_code=400, detail="User not found",)
     return {"message": "User logged in", "token": create_access_token({"user_id": user["user_id"]})}
 
+
 # @app.post("/logout")
 # def logout(token: str = Query(...)):
 #     Manager.logout(token)
@@ -102,7 +103,7 @@ async def create_post(
             json.dumps(result, cls=CustomJSONEncoder)
         )
     )
-    
+
 @app.get("/users/me")
 def get_current_user(user_id: str = Depends(get_current_user)):
     user = Manager.get_user(user_id)
