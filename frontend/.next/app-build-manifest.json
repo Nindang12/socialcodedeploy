@@ -1,7 +1,4 @@
 {
-<<<<<<< HEAD
-  "pages": {}
-=======
   "pages": {
     "/comment/[id]/page": [
       "static/chunks/node_modules_next_dist_1a6ee436._.js",
@@ -56,5 +53,4 @@
       "static/chunks/_be317ff2._.js"
     ]
   }
->>>>>>> 37d0eec5f3f83736782c4944d149e073a84766b8
 }

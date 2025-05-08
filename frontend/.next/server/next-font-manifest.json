@@ -1,8 +1,4 @@
 {
-<<<<<<< HEAD
-  "app": {},
-  "appUsingSizeAdjust": false,
-=======
   "app": {
     "[project]/src/app/comment/[id]/page": [
       "static/media/or3nQ6H_1_WfwkMZI_qYFrcdmhHkjko-s.p.be19f591.woff2",
@@ -18,7 +14,6 @@
     ]
   },
   "appUsingSizeAdjust": true,
->>>>>>> 37d0eec5f3f83736782c4944d149e073a84766b8
   "pages": {},
   "pagesUsingSizeAdjust": false
 }

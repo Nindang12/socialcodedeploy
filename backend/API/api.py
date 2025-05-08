@@ -77,7 +77,11 @@ class CustomJSONEncoder(json.JSONEncoder):
             return str(obj)
         if isinstance(obj, datetime):
             return obj.isoformat()
+        if isinstance(obj, bytes):
+            # Nếu muốn convert sang chuỗi base64
+            return obj.decode("utf-8", errors="ignore") 
         return super().default(obj)
+    
 
 def custom_json_serializer(obj: Any) -> Any:
     if isinstance(obj, ObjectId):
