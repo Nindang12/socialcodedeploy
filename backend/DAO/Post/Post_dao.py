@@ -178,6 +178,18 @@ class Post_dao:
         except Exception as e:
             print(f"Error getting post: {str(e)}")
             return None
+    
+    def get_post_by_id(self, post_id: str):
+        try:
+            post = self.collection.find_one({"post_id": post_id})
+            if post:
+                if "_id" in post:
+                    post["_id"] = str(post["_id"])
+                return post  # Không dùng Post.from_dict()
+            return None
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to get post by id: {str(e)}")
+    
     def get_posts(self):
         try:
             posts = self.collection.find()

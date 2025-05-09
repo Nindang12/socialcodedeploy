@@ -1,4 +1,4 @@
-'use client'
+ 'use client'
 import { MessageCircle, Heart, Repeat, Smile, Image, MapPin, AlignLeft, X, MoreHorizontal, Ellipsis } from "lucide-react";
 import { useState,ReactNode, useEffect  } from "react";
 import { useRouter } from "next/navigation";
@@ -6,7 +6,8 @@ import axios from "axios";
 
 const posts = [
   {
-    id: 1,
+    post_id: 1,
+    user_id: 1,
     avatar: "https://placehold.co/40x40", 
     username: "username",
     time: "19 giờ",
@@ -18,7 +19,8 @@ const posts = [
     saves: 8,
   },
   {
-    id: 2,
+    post_id: 2,
+    user_id: 2,
     avatar: "https://placehold.co/40x40",
     username: "username", 
     time: "1 ngày",
@@ -30,7 +32,8 @@ const posts = [
     saves: 6,
   },
   {
-    id: 3,
+    post_id: 3,
+    user_id: 3,
     avatar: "https://placehold.co/40x40",
     username: "randomuser",
     time: "2 ngày", 
@@ -44,7 +47,7 @@ const posts = [
 ];
 
 interface PostResponse {
-  id: number;
+  post_id: number;
   user_id: number;
   content: string;
   image_id?: string;
@@ -359,11 +362,15 @@ export default function Home() {
           )}
 
           <div className="space-y-4 max-h-[80vh] overflow-y-auto">
-            {localPosts.map((post) => (
-              <div key={post.id} onClick={() => router.push(`/comment/${post.id}`)} className="cursor-pointer">
+          {localPosts.map((post) => {
+            console.log("Post ID:", post.post_id); // Log giá trị ID
+            return (
+              <div key={post.post_id} onClick={() => router.push(`/comment/${post.post_id}`)} className="cursor-pointer">
                 <Post {...post} />
               </div>
-            ))}
+            );
+          })}
+        
           </div>
         </div>
       </div>
@@ -371,7 +378,7 @@ export default function Home() {
   );
 }
 
-function Post({ id, avatar, username, time, content, image, video, likes, comments, reposts, saves }: typeof posts[0] & { video?: string }) {
+function Post({ post_id,user_id, avatar, username, time, content, image, video, likes, comments, reposts, saves }: typeof posts[0] & { video?: string }) {
   const [showComment, setShowComment] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
@@ -384,11 +391,64 @@ function Post({ id, avatar, username, time, content, image, video, likes, commen
   const [editedContent, setEditedContent] = useState(content);
   const [isFollowing, setIsFollowing] = useState(false);
 
-
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikeCount(prev => liked ? prev - 1 : prev + 1);
+  const token = localStorage.getItem('token');
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include',
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+  
+          // Check nếu user_id có trong mảng liked_by
+          const userHasLiked = data.liked_by.some(
+            (item: any) => item.user?.user_id === user_id
+          );
+  
+          setLiked(userHasLiked);
+          setLikeCount(data.likes);
+        }
+      } catch (error) {
+        console.error("Failed to fetch post:", error);
+      }
+    };
+  
+    fetchPost();
+  }, [post_id, token, user_id]);
+  
+  const handleLike = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+  
+        // Kiểm tra xem user đã like chưa từ liked_by (mảng)
+        const userHasLiked = data.liked_by.some(
+          (item: any) => item.user?.user_id === user_id
+        );
+        setLiked(userHasLiked);
+        
+        setLikeCount(data.likes);
+      } else {
+        console.error('Server error:', response.status);
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
   };
+  
 
   const handleRepost = () => {
     setReposted(!reposted);

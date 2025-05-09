@@ -49,6 +49,13 @@ class DAO_Manager:
 
     def get_posts(self):
         return self.post_dao.get_posts()
+    
+    def get_post_by_id(self, post_id: str):
+        post = self.post_dao.get_post_by_id(post_id)
+        if post:
+            return post
+        else:
+            raise HTTPException(status_code=404, detail="Post not found")
 
     def get_media(self, file_id: str, is_image: bool = True):
         return self.post_dao.get_media(file_id, is_image)

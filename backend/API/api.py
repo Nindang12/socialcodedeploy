@@ -178,6 +178,11 @@ def search_posts(query: str):
 # Comment Endpoints
 # ------------------------
 
+@app.get("/posts/{post_id}")
+def get_post_by_id(post_id: str):
+    post = Manager.get_post_by_id(post_id)
+    return post
+
 @app.post("/posts/{post_id}/comment")
 async def comment_post(
     post_id: str,
