@@ -8,6 +8,7 @@ from typing import Optional
 import os
 from fastapi.responses import StreamingResponse
 from io import BytesIO
+from DAO.User.User_dao import User_dao
 class Post_dao:
     def __init__(self):
         self.db = DatabaseConnection.get_db()
@@ -43,6 +44,9 @@ class Post_dao:
 
     def create_post(self, user_id: str, content: str, image: Optional[UploadFile] = None, video: Optional[UploadFile] = None):
         # Create post dictionary from Post object
+        user = User_dao().get_user(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
         post_dict = {
             "post_id": str(uuid.uuid4()),
             "user_id": user_id,
@@ -173,7 +177,9 @@ class Post_dao:
             if post:
                 if "_id" in post:
                     post["_id"] = str(post["_id"])
-                return Post.from_dict(post)
+                if "liked_by" not in post or post["liked_by"] is None:
+                    post["liked_by"] = []
+                return post
             return None
         except Exception as e:
             print(f"Error getting post: {str(e)}")
@@ -193,10 +199,21 @@ class Post_dao:
     def get_posts(self):
         try:
             posts = self.collection.find()
-            return [Post.from_dict(post) for post in posts]
+            result = []
+            for post in posts:
+                if "_id" in post:
+                    post["_id"] = str(post["_id"])
+
+                if "liked_by" not in post or post["liked_by"] is None:
+                    post["liked_by"] = []
+
+                result.append(post)
+            return result
+
         except Exception as e:
             print(f"Error getting posts: {str(e)}")
             return []
+
     def edit_post(self, post_id: str, content: str, user_id: str):
         try:
             # Check if post exists

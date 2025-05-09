@@ -39,9 +39,12 @@ class Post:
 
     @staticmethod
     def from_dict(data: dict):
+        user_data = data.get("user", {})
+        user_id = user_data.get("_id") or data.get("user_id")  # fallback nếu dùng kiểu cũ
+
         return Post(
             post_id=data.get("post_id"),
-            user_id=data["user_id"],
+            user_id=user_id,
             content=data["content"],
             image_id=data.get("image_id"),
             video_id=data.get("video_id"),
@@ -51,3 +54,4 @@ class Post:
             created_at=data.get("created_at"),
             updated_at=data.get("updated_at")
         )
+
