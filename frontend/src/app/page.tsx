@@ -1,6 +1,6 @@
- 'use client'
+'use client'
 import { MessageCircle, Heart, Repeat, Smile, Image, MapPin, AlignLeft, X, MoreHorizontal, Ellipsis } from "lucide-react";
-import { useState,ReactNode, useEffect  } from "react";
+import { useState,ReactNode, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -62,6 +62,7 @@ interface PostResponse {
 interface UserResponse {
   user: {
     username: string;
+    user_id: string;
     // ... các trường khác nếu cần
   };
 }
@@ -77,17 +78,20 @@ export default function Home() {
   const formatTime = (createdAt: string) => {
     const now = new Date();
     const postDate = new Date(createdAt);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
+    const diffInMinutes = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
     
-    if (diffInHours < 24) {
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} phút`;
+    } else if (diffInMinutes < 1440) { // Less than 24 hours
+      const diffInHours = Math.floor(diffInMinutes / 60);
       return `${diffInHours} giờ`;
     } else {
-      const diffInDays = Math.floor(diffInHours / 24);
+      const diffInDays = Math.floor(diffInMinutes / 1440);
       return `${diffInDays} ngày`;
     }
   };
 
-  const [currentUser, setCurrentUser] = useState<{ username: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ username: string, user_id: string } | null>(null);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -412,6 +416,8 @@ function Post({
   
   const token = localStorage.getItem('token');
   const [currentUser, setCurrentUser] = useState<{ username: string, user_id: string } | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const optionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!post_id || !token || !currentUser) return;
@@ -507,15 +513,17 @@ function Post({
 
   const handleComment = async () => {
     try {
+      const formData = new FormData();
+      formData.append("content", newComment);
+  
       const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/comment`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ content: newComment }),
+        body: formData,
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         setCommentCount(data.comments);
@@ -530,22 +538,34 @@ function Post({
 
   const handleEditPost = async () => {
     try {
+      const formData = new FormData();
+      formData.append('content', editedContent);
+
       const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ content: editedContent }),
+        body: formData
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setContent(editedContent);
+        setEditMode(false);
+        setErrorMsg("");
+        setLocalPosts(prevPosts => prevPosts.map(post => 
+          post.post_id === post_id ? { ...post, content: editedContent } : post
+        ));
       } else {
+        const data = await response.json();
+        if (data.detail) {
+          setErrorMsg(data.detail);
+        } else {
+          setErrorMsg("Có lỗi xảy ra khi chỉnh sửa bài viết.");
+        }
         console.error('Failed to edit post:', response.status);
       }
     } catch (error) {
+      setErrorMsg("Có lỗi xảy ra khi chỉnh sửa bài viết.");
       console.error('Error editing post:', error);
     }
   };
@@ -560,12 +580,20 @@ function Post({
       });
 
       if (response.ok) {
+        setErrorMsg("");
         console.log('Post deleted successfully');
         setLocalPosts((prevPosts: typeof posts[0][]) => prevPosts.filter((post: typeof posts[0]) => post.post_id !== post_id));
       } else {
+        const data = await response.json();
+        if (data.detail) {
+          setErrorMsg(data.detail);
+        } else {
+          setErrorMsg("Có lỗi xảy ra khi xóa bài viết.");
+        }
         console.error('Failed to delete post:', response.status);
       }
     } catch (error) {
+      setErrorMsg("Có lỗi xảy ra khi xóa bài viết.");
       console.error('Error deleting post:', error);
     }
   };
@@ -589,6 +617,19 @@ function Post({
       console.error('Error following/unfollowing user:', error);
     }
   };
+
+  useEffect(() => {
+    if (!showOptions) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (optionRef.current && !optionRef.current.contains(event.target as Node)) {
+        setShowOptions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showOptions]);
 
   return (
     <div className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
@@ -623,9 +664,11 @@ function Post({
           />
         </div>
         {showOptions && (
-          <div className="absolute bg-white border border-gray-200 shadow-md p-2 rounded-lg translate-x-[230%] translate-y-7" onClick={(e) => {
-            e.stopPropagation();
-          }}>
+          <div
+            ref={optionRef}
+            className="absolute bg-white border border-gray-200 shadow-md p-2 rounded-lg translate-x-[230%] translate-y-7"
+            onClick={(e) => { e.stopPropagation(); }}
+          >
             <button className="w-full text-left hover:bg-gray-100 p-2" onClick={() => {setEditMode(true);setShowOptions(false);}}>Chỉnh sửa</button>
             <button className="w-full text-left hover:bg-gray-100 p-2" onClick={handleDeletePost}>Xóa</button>
           </div>
@@ -633,7 +676,39 @@ function Post({
       </div>
 
       {/* Content */}
-      <p className="mt-2">{content}</p>
+      {editMode ? (
+        <div className="mt-2" onClick={(e) => {e.stopPropagation()}}>
+          <textarea 
+            className="w-full p-2 border rounded-lg"
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+          />
+          <div className="flex gap-2 mt-2">
+            <button 
+              className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              onClick={handleEditPost}
+            >
+              Lưu
+            </button>
+            <button
+              className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+              onClick={() => setEditMode(false)}
+            >
+              Hủy
+            </button>
+          </div>
+          {errorMsg && (
+            <div className="text-red-500 text-sm mt-2">{errorMsg}</div>
+          )}
+        </div>
+      ) : (
+        <>
+          <p className="mt-2">{content}</p>
+          {errorMsg && (
+            <div className="text-red-500 text-sm mt-2">{errorMsg}</div>
+          )}
+        </>
+      )}
       {image && <img src={`${image}`} alt="Post" className="mt-2 rounded-lg" />}
       {video && <video src={`${video}`} controls className="mt-2 rounded-lg w-full" />}
 
@@ -684,8 +759,8 @@ function Post({
                   className="w-10 h-10 rounded-full"
                 />
                 <div className="flex-1">
-                  <p className="font-semibold text-sm">username <span className="text-gray-500 text-xs">• time</span></p>
-                  <p className="text-sm text-gray-800">content</p>
+                  <p className="font-semibold text-sm">{username} <span className="text-gray-500 text-xs">• {time}</span></p>
+                  <p className="text-sm text-gray-800">{content}</p>
                 </div>
               </div>
             </div>
@@ -701,7 +776,7 @@ function Post({
                 <div className="flex-1">
                   <input
                     type="text"
-                    placeholder="Trả lời username"
+                    placeholder={`Trả lời ${username}`}
                     className="w-full border-none outline-none bg-transparent text-sm text-gray-800"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
@@ -715,7 +790,15 @@ function Post({
     
             {/* Nút Đăng */}
             <div className="p-4">
-              <button className="w-full bg-gray-300 text-gray-500 py-2 rounded-lg cursor-not-allowed" onClick={handleComment}>
+              <button
+                className={`w-full py-2 rounded-lg ${
+                  newComment.trim()
+                    ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                disabled={!newComment.trim()}
+                onClick={handleComment}
+              >
                 Đăng
               </button>
             </div>
