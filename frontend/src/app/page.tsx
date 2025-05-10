@@ -366,14 +366,14 @@ export default function Home() {
           )}
 
           <div className="space-y-4 max-h-[80vh] overflow-y-auto">
-          {localPosts.map((post) => {
-            console.log("Post ID:", post.post_id); // Log giá trị ID
-            return (
-              <div key={post.post_id} onClick={() => router.push(`/comment/${post.post_id}`)} className="cursor-pointer">
-                <Post {...post} setLocalPosts={setLocalPosts} />
-              </div>
-            );
-          })}
+          {localPosts.map((post) => (
+            <Post
+              key={post.post_id}
+              {...post}
+              setLocalPosts={setLocalPosts}
+              currentUser={currentUser}
+            />
+          ))}
         
           </div>
         </div>
@@ -382,23 +382,25 @@ export default function Home() {
   );
 }
 
-function Post({ 
+function Post({
   post_id,
-  user_id, 
-  avatar, 
-  username, 
-  time, 
-  content, 
-  image, 
-  video, 
-  likes, 
-  comments, 
-  reposts, 
+  user_id,
+  avatar,
+  username,
+  time,
+  content,
+  image,
+  video,
+  likes,
+  comments,
+  reposts,
   saves,
-  setLocalPosts 
-}: typeof posts[0] & { 
+  setLocalPosts,
+  currentUser
+}: typeof posts[0] & {
   video?: string;
   setLocalPosts: React.Dispatch<React.SetStateAction<typeof posts[0][]>>;
+  currentUser: { username: string; user_id: string } | null;
 }) {
   const [showComment, setShowComment] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -415,43 +417,62 @@ function Post({
   const router = useRouter();
   
   const token = localStorage.getItem('token');
-  const [currentUser, setCurrentUser] = useState<{ username: string, user_id: string } | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const optionRef = useRef<HTMLDivElement>(null);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   useEffect(() => {
+    console.log("useEffect run, currentUser:", currentUser);
     if (!post_id || !token || !currentUser) return;
-  
-    const fetchPost = async () => {
+
+    const fetchPostAndUser = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+        // Fetch post
+        const postRes = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
           credentials: 'include',
         });
-  
-        if (response.ok) {
-          const data = await response.json();
-  
-          if (data && Array.isArray(data.liked_by)) {
-            const userHasLiked = data.liked_by.some(
-              (item: any) => item.user?.user_id === currentUser.user_id
-            );
-            setLiked(userHasLiked);
-            setLikeCount(data.likes);
-          } else {
-            console.warn("liked_by is missing or not an array:", data.liked_by);
-            setLiked(false);
-            setLikeCount(data?.likes ?? 0);
-          }
+        if (!postRes.ok) return;
+        const postData = await postRes.json();
+
+        // Kiểm tra liked
+        if (postData && Array.isArray(postData.liked_by)) {
+          const userHasLiked = postData.liked_by
+            .map((id: string) => String(id).trim())
+            .includes(String(currentUser.user_id).trim());
+          setLiked(userHasLiked);
+          setLikeCount(postData.likes);
+        } else {
+          setLiked(false);
+          setLikeCount(postData?.likes ?? 0);
         }
+
+        // Kiểm tra reposted
+        if (postData && Array.isArray(postData.reposted_by)) {
+          const userHasReposted = postData.reposted_by
+            .map((id: string) => String(id).trim())
+            .includes(String(currentUser.user_id).trim());
+          setReposted(userHasReposted);
+          setRepostCount(postData.reposts);
+        }
+
+        // Fetch user info of post's author
+        const userRes = await fetch(`http://127.0.0.1:8000/users/${postData.user_id}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (!userRes.ok) return;
+        const userData = await userRes.json();
+        const followers = userData.user?.followers || [];
+        const isUserFollowing = followers
+          .map((id: string) => String(id).trim())
+          .includes(String(currentUser.user_id).trim());
+        setIsFollowing(isUserFollowing);
       } catch (error) {
-        console.error("Failed to fetch post:", error);
+        console.error("Failed to fetch post or user:", error);
       }
     };
-  
-    fetchPost();
+
+    fetchPostAndUser();
   }, [post_id, token, currentUser]);
   
   
@@ -464,50 +485,49 @@ function Post({
           'Authorization': `Bearer ${token}`,
         },
       });
-  
-      if (response.ok) {
-        const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error('Failed to like post');
+      }
+
+      const data = await response.json();
       
-        if (data && Array.isArray(data.liked_by)) {
-          const userHasLiked = data.liked_by.some(
-            (item: any) => item.user?.user_id === currentUser?.user_id
-          );
-          setLiked(userHasLiked);
-          setLikeCount(data.likes);
-          console.log("user_id:", user_id);
-          console.log("liked_by:", data.liked_by);
-        } else {
-          console.warn("liked_by is invalid:", data.liked_by);
-          setLiked(false);
-          setLikeCount(data?.likes ?? 0);
-        }
-      }
-       else {
-        console.error('Server error:', response.status);
-      }
+      // Toggle like status
+      setLiked(!liked);
+      setLikeCount(prev => liked ? prev - 1 : prev + 1);
+
+      console.log("API response after follow:", data);
+      console.log("currentUser.user_id:", currentUser?.user_id);
+
     } catch (error) {
       console.error('Error liking post:', error);
     }
   };
-  
 
   const handleRepost = async () => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/repost`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json', 
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setReposted(data.reposted);
+      if (!response.ok) {
+        throw new Error('Failed to repost');
+      }
+
+      const data = await response.json();
+      if (data && Array.isArray(data.reposted_by)) {
+        const userHasReposted = data.reposted_by
+          .map((id: string) => String(id).trim())
+          .includes(String(currentUser?.user_id).trim());
+        setReposted(userHasReposted);
         setRepostCount(data.reposts);
       }
     } catch (error) {
-      console.error('Error reposting post:', error);
+      console.error('Error reposting:', error);
     }
   };
 
@@ -598,7 +618,10 @@ function Post({
     }
   };
 
-  const handleFollowToggle = async () => {
+  const handleFollow = async () => {
+    if (!token || !user_id || !currentUser?.user_id) return;
+    if (String(user_id) === String(currentUser.user_id)) return;
+    setIsFollowLoading(true);
     try {
       const response = await fetch(`http://127.0.0.1:8000/users/${user_id}/follow`, {
         method: 'POST',
@@ -607,14 +630,54 @@ function Post({
           'Authorization': `Bearer ${token}`,
         },
       });
-
       if (response.ok) {
-        setIsFollowing(!isFollowing);
-      } else {
-        console.error('Failed to follow/unfollow user:', response.status);
+        const data = await response.json();
+        console.log("API response after follow:", data);
+        if (data && currentUser) {
+          const followers = (data.user && Array.isArray(data.user.followers))
+            ? data.user.followers
+            : (Array.isArray(data.followers) ? data.followers : []);
+          const isUserFollowing = followers
+            .map((id: string) => String(id).trim())
+            .includes(String(currentUser.user_id).trim());
+          setIsFollowing(isUserFollowing);
+        }
       }
     } catch (error) {
-      console.error('Error following/unfollowing user:', error);
+      console.error('Error following user:', error);
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (!token || !user_id || !currentUser?.user_id) return;
+    if (String(user_id) === String(currentUser.user_id)) return;
+    setIsFollowLoading(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/users/${user_id}/unfollow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && currentUser) {
+          const followers = (data.user && Array.isArray(data.user.followers))
+            ? data.user.followers
+            : (Array.isArray(data.followers) ? data.followers : []);
+          const isUserFollowing = followers
+            .map((id: string) => String(id).trim())
+            .includes(String(currentUser.user_id).trim());
+          setIsFollowing(isUserFollowing);
+        }
+      }
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+    } finally {
+      setIsFollowLoading(false);
     }
   };
 
@@ -631,6 +694,8 @@ function Post({
     };
   }, [showOptions]);
 
+  console.log("Render Heart, liked:", liked);
+
   return (
     <div className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
       {/* Header */}
@@ -643,16 +708,31 @@ function Post({
                 <p className="font-semibold">{username}</p>
                 <p className="text-sm text-gray-500">{time}</p>
               </div>
-              <button
-                onClick={() => setIsFollowing(!isFollowing)}
-                className={`text-xs px-3 py-1 rounded-full font-medium ${
-                  isFollowing
-                    ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                    : 'bg-blue-500 hover:bg-blue-600 text-white'
-                }`}
-              >
-                {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
-              </button>
+              {String(user_id) !== String(currentUser?.user_id) && (
+                <button
+                  onClick={isFollowing ? handleUnfollow : handleFollow}
+                  className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full font-medium transition-colors duration-150 ${
+                    isFollowing
+                      ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  } ${isFollowLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  disabled={isFollowLoading}
+                >
+                  {isFollowLoading ? (
+                    <span className="loader w-3 h-3 border-2 border-t-2 border-gray-400 rounded-full animate-spin"></span>
+                  ) : isFollowing ? (
+                    <>
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#16a34a" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+                      Đang theo dõi
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#2563eb" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
+                      Theo dõi
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -688,7 +768,7 @@ function Post({
               className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
               onClick={handleEditPost}
             >
-              Lưu
+              Lưu 
             </button>
             <button
               className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"

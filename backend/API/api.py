@@ -330,13 +330,15 @@ def search_user(
 
 @app.post("/users/{user_id}/follow")
 def follow_user(user_id: str, current_user_id: str = Depends(get_current_user)):
-    result = Manager.follow_user(current_user_id, user_id)
-    return result
+    Manager.follow_user(current_user_id, user_id)
+    user = Manager.get_user(user_id)
+    return {"user": user}
 
 @app.post("/users/{user_id}/unfollow")
 def unfollow_user(user_id: str, current_user_id: str = Depends(get_current_user)):
-    result = Manager.unfollow_user(current_user_id, user_id)
-    return result
+    Manager.unfollow_user(current_user_id, user_id)
+    user = Manager.get_user(user_id)
+    return {"user": user}
 
 # ------------------------
 # Notification
