@@ -649,7 +649,8 @@ function Home() {
                                     onClick: ()=>router.push(`/comment/${post.post_id}`),
                                     className: "cursor-pointer",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Post, {
-                                        ...post
+                                        ...post,
+                                        setLocalPosts: setLocalPosts
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
                                         lineNumber: 369,
@@ -684,7 +685,7 @@ function Home() {
         columnNumber: 5
     }, this);
 }
-function Post({ post_id, user_id, avatar, username, time, content, image, video, likes, comments, reposts, saves }) {
+function Post({ post_id, user_id, avatar, username, time, content, image, video, likes, comments, reposts, saves, setLocalPosts }) {
     const [showComment, setShowComment] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [liked, setLiked] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [likeCount, setLikeCount] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(likes);
@@ -833,6 +834,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
             });
             if (response.ok) {
                 console.log('Post deleted successfully');
+                setLocalPosts((prevPosts)=>prevPosts.filter((post)=>post.post_id !== post_id));
             } else {
                 console.error('Failed to delete post:', response.status);
             }
@@ -873,7 +875,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                 className: "w-10 h-10 rounded-full"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 580,
+                                lineNumber: 598,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -887,7 +889,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                                     children: username
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.tsx",
-                                                    lineNumber: 584,
+                                                    lineNumber: 602,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -895,13 +897,13 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                                     children: time
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.tsx",
-                                                    lineNumber: 585,
+                                                    lineNumber: 603,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 583,
+                                            lineNumber: 601,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -910,24 +912,24 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                             children: isFollowing ? 'Đang theo dõi' : 'Theo dõi'
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 587,
+                                            lineNumber: 605,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 582,
+                                    lineNumber: 600,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 581,
+                                lineNumber: 599,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 579,
+                        lineNumber: 597,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -941,12 +943,12 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                             onClick: ()=>setShowOptions((prev)=>!prev)
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 601,
+                            lineNumber: 619,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 600,
+                        lineNumber: 618,
                         columnNumber: 9
                     }, this),
                     showOptions && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -964,7 +966,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                 children: "Chỉnh sửa"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 611,
+                                lineNumber: 629,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -973,19 +975,19 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                 children: "Xóa"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 612,
+                                lineNumber: 630,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 608,
+                        lineNumber: 626,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 578,
+                lineNumber: 596,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -993,7 +995,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                 children: content
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 618,
+                lineNumber: 636,
                 columnNumber: 7
             }, this),
             image && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
@@ -1002,7 +1004,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                 className: "mt-2 rounded-lg"
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 619,
+                lineNumber: 637,
                 columnNumber: 17
             }, this),
             video && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
@@ -1011,7 +1013,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                 className: "mt-2 rounded-lg w-full"
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 620,
+                lineNumber: 638,
                 columnNumber: 17
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1023,14 +1025,14 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                             className: liked ? "text-red-500" : "text-gray-500"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 625,
+                            lineNumber: 643,
                             columnNumber: 17
                         }, void 0),
                         count: likeCount,
                         onClick: handleLike
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 624,
+                        lineNumber: 642,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -1038,14 +1040,14 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                             size: 18
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 630,
+                            lineNumber: 648,
                             columnNumber: 17
                         }, void 0),
                         count: commentCount,
                         onClick: ()=>setShowComment((prev)=>!prev)
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 629,
+                        lineNumber: 647,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -1054,20 +1056,20 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                             className: reposted ? "text-green-500" : "text-gray-500"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 635,
+                            lineNumber: 653,
                             columnNumber: 17
                         }, void 0),
                         count: repostCount,
                         onClick: handleRepost
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 634,
+                        lineNumber: 652,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 623,
+                lineNumber: 641,
                 columnNumber: 7
             }, this),
             showComment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1089,12 +1091,12 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                         className: "cursor-pointer"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 652,
+                                        lineNumber: 670,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 651,
+                                    lineNumber: 669,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1102,7 +1104,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                     children: "Thread trả lời"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 654,
+                                    lineNumber: 672,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1111,18 +1113,18 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                         size: 20
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 656,
+                                        lineNumber: 674,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 655,
+                                    lineNumber: 673,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 650,
+                            lineNumber: 668,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1136,7 +1138,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                         className: "w-10 h-10 rounded-full"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 663,
+                                        lineNumber: 681,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1151,13 +1153,13 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                                         children: "• time"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.tsx",
-                                                        lineNumber: 669,
+                                                        lineNumber: 687,
                                                         columnNumber: 65
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/page.tsx",
-                                                lineNumber: 669,
+                                                lineNumber: 687,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1165,24 +1167,24 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                                 children: "content"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.tsx",
-                                                lineNumber: 670,
+                                                lineNumber: 688,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 668,
+                                        lineNumber: 686,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 662,
+                                lineNumber: 680,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 661,
+                            lineNumber: 679,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1196,7 +1198,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                         className: "w-10 h-10 rounded-full"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 678,
+                                        lineNumber: 696,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1210,7 +1212,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                                 onChange: (e)=>setNewComment(e.target.value)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.tsx",
-                                                lineNumber: 684,
+                                                lineNumber: 702,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1220,34 +1222,34 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                                         size: 18
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/page.tsx",
-                                                        lineNumber: 692,
+                                                        lineNumber: 710,
                                                         columnNumber: 29
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.tsx",
-                                                    lineNumber: 692,
+                                                    lineNumber: 710,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.tsx",
-                                                lineNumber: 691,
+                                                lineNumber: 709,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 683,
+                                        lineNumber: 701,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 677,
+                                lineNumber: 695,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 676,
+                            lineNumber: 694,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1258,29 +1260,29 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                 children: "Đăng"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 700,
+                                lineNumber: 718,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 699,
+                            lineNumber: 717,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 648,
+                    lineNumber: 666,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 642,
+                lineNumber: 660,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 576,
+        lineNumber: 594,
         columnNumber: 5
     }, this);
 }
@@ -1297,13 +1299,13 @@ function ActionButton({ icon, count, onClick }) {
                 children: count
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 729,
+                lineNumber: 747,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 721,
+        lineNumber: 739,
         columnNumber: 5
     }, this);
 }

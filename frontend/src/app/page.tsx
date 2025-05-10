@@ -366,7 +366,7 @@ export default function Home() {
             console.log("Post ID:", post.post_id); // Log giá trị ID
             return (
               <div key={post.post_id} onClick={() => router.push(`/comment/${post.post_id}`)} className="cursor-pointer">
-                <Post {...post} />
+                <Post {...post} setLocalPosts={setLocalPosts} />
               </div>
             );
           })}
@@ -378,7 +378,24 @@ export default function Home() {
   );
 }
 
-function Post({ post_id,user_id, avatar, username, time, content, image, video, likes, comments, reposts, saves }: typeof posts[0] & { video?: string }) {
+function Post({ 
+  post_id,
+  user_id, 
+  avatar, 
+  username, 
+  time, 
+  content, 
+  image, 
+  video, 
+  likes, 
+  comments, 
+  reposts, 
+  saves,
+  setLocalPosts 
+}: typeof posts[0] & { 
+  video?: string;
+  setLocalPosts: React.Dispatch<React.SetStateAction<typeof posts[0][]>>;
+}) {
   const [showComment, setShowComment] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
@@ -544,6 +561,7 @@ function Post({ post_id,user_id, avatar, username, time, content, image, video, 
 
       if (response.ok) {
         console.log('Post deleted successfully');
+        setLocalPosts((prevPosts: typeof posts[0][]) => prevPosts.filter((post: typeof posts[0]) => post.post_id !== post_id));
       } else {
         console.error('Failed to delete post:', response.status);
       }
