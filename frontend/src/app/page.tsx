@@ -384,15 +384,21 @@ function Post({ post_id,user_id, avatar, username, time, content, image, video, 
   const [likeCount, setLikeCount] = useState(likes);
   const [reposted, setReposted] = useState(false);
   const [repostCount, setRepostCount] = useState(reposts);
+  
   const [newComment, setNewComment] = useState("");
   const [commentCount, setCommentCount] = useState(comments);
   const [showOptions, setShowOptions] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const [isFollowing, setIsFollowing] = useState(false);
-
+  const router = useRouter();
+  
   const token = localStorage.getItem('token');
+  const [currentUser, setCurrentUser] = useState<{ username: string, user_id: string } | null>(null);
+
   useEffect(() => {
+    if (!post_id || !token || !currentUser) return;
+  
     const fetchPost = async () => {
       try {
         const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
@@ -405,13 +411,17 @@ function Post({ post_id,user_id, avatar, username, time, content, image, video, 
         if (response.ok) {
           const data = await response.json();
   
-          // Check nếu user_id có trong mảng liked_by
-          const userHasLiked = data.liked_by.some(
-            (item: any) => item.user?.user_id === user_id
-          );
-  
-          setLiked(userHasLiked);
-          setLikeCount(data.likes);
+          if (data && Array.isArray(data.liked_by)) {
+            const userHasLiked = data.liked_by.some(
+              (item: any) => item.user?.user_id === currentUser.user_id
+            );
+            setLiked(userHasLiked);
+            setLikeCount(data.likes);
+          } else {
+            console.warn("liked_by is missing or not an array:", data.liked_by);
+            setLiked(false);
+            setLikeCount(data?.likes ?? 0);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch post:", error);
@@ -419,7 +429,8 @@ function Post({ post_id,user_id, avatar, username, time, content, image, video, 
     };
   
     fetchPost();
-  }, [post_id, token, user_id]);
+  }, [post_id, token, currentUser]);
+  
   
   const handleLike = async () => {
     try {
@@ -433,15 +444,22 @@ function Post({ post_id,user_id, avatar, username, time, content, image, video, 
   
       if (response.ok) {
         const data = await response.json();
-  
-        // Kiểm tra xem user đã like chưa từ liked_by (mảng)
-        const userHasLiked = data.liked_by.some(
-          (item: any) => item.user?.user_id === user_id
-        );
-        setLiked(userHasLiked);
-        
-        setLikeCount(data.likes);
-      } else {
+      
+        if (data && Array.isArray(data.liked_by)) {
+          const userHasLiked = data.liked_by.some(
+            (item: any) => item.user?.user_id === currentUser?.user_id
+          );
+          setLiked(userHasLiked);
+          setLikeCount(data.likes);
+          console.log("user_id:", user_id);
+          console.log("liked_by:", data.liked_by);
+        } else {
+          console.warn("liked_by is invalid:", data.liked_by);
+          setLiked(false);
+          setLikeCount(data?.likes ?? 0);
+        }
+      }
+       else {
         console.error('Server error:', response.status);
       }
     } catch (error) {
@@ -450,25 +468,108 @@ function Post({ post_id,user_id, avatar, username, time, content, image, video, 
   };
   
 
-  const handleRepost = () => {
-    setReposted(!reposted);
-    setRepostCount(prev => reposted ? prev - 1 : prev + 1);
+  const handleRepost = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/repost`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setReposted(data.reposted);
+        setRepostCount(data.reposts);
+      }
+    } catch (error) {
+      console.error('Error reposting post:', error);
+    }
   };
 
-  const handleComment = () => {
-    // TODO: Implement comment functionality
+  const handleComment = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: newComment }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCommentCount(data.comments);
+        setNewComment("");
+      } else {
+        console.error('Failed to comment on post:', response.status);
+      }
+    } catch (error) {
+      console.error('Error commenting on post:', error);
+    }
   };
 
-  const handleEditPost = () => {
-    // TODO: Implement edit post functionality
+  const handleEditPost = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: editedContent }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setContent(editedContent);
+      } else {
+        console.error('Failed to edit post:', response.status);
+      }
+    } catch (error) {
+      console.error('Error editing post:', error);
+    }
   };
 
-  const handleDeletePost = () => {
-    // TODO: Implement delete post functionality
+  const handleDeletePost = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        console.log('Post deleted successfully');
+      } else {
+        console.error('Failed to delete post:', response.status);
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
   };
 
-  const handleFollowToggle = (e: React.MouseEvent) => {
-    // TODO: Implement follow/unfollow functionality
+  const handleFollowToggle = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/users/${user_id}/follow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setIsFollowing(!isFollowing);
+      } else {
+        console.error('Failed to follow/unfollow user:', response.status);
+      }
+    } catch (error) {
+      console.error('Error following/unfollowing user:', error);
+    }
   };
 
   return (

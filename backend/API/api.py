@@ -109,7 +109,7 @@ async def create_post(
     )
 
 @app.get("/users/me")
-def get_current_user(user_id: str = Depends(get_current_user)):
+def getCurrentUser(user_id: str = Depends(get_current_user)):
     user = Manager.get_user(user_id)
     return {"user": user}
 
@@ -138,14 +138,7 @@ def edit_post(post_id: str, content: str = Form(...), user_id: str = Depends(get
 
 @app.delete("/posts/{post_id}")
 def delete_post(post_id: str, user_id: str = Depends(get_current_user)):
-    post = Manager.delete_post(post_id, user_id )
-    if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    return JSONResponse(
-        content=json.loads(
-            json.dumps(post, cls=CustomJSONEncoder)
-        )
-    )
+    return Manager.delete_post(post_id, user_id)
 
 @app.post("/posts/{post_id}/like")
 def like_post(post_id: str, user_id: str = Depends(get_current_user)):

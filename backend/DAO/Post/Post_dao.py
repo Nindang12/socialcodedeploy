@@ -240,20 +240,22 @@ class Post_dao:
 
     def delete_post(self, post_id: str, user_id: str):
         try:
-            # Check if post exists
             post = self.collection.find_one({"post_id": post_id})
             if not post:
                 raise HTTPException(status_code=404, detail="Post not found")
 
-            # Check if user is the post creator
-            if post["user_id"] != user_id:
+            if str(post["user_id"]) != str(user_id):
                 raise HTTPException(status_code=403, detail="You are not authorized to delete this post")
+
 
             self.collection.delete_one({"post_id": post_id})
             return {"message": "Post deleted successfully"}
+
+        except HTTPException as http_exc:
+            raise http_exc  # Để FastAPI trả về đúng lỗi 403 hoặc 404
+
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
-
     def like_post(self, post_id: str, user_id: str):
         try:
             # Get the post first
