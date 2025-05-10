@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { MessageCircle, Heart, Repeat, Image, ArrowLeftIcon } from "lucide-react";
 import { ReactNode } from "react";
 
-export default function CommentPage({ params }: { params: { id: string } }) {
+export default function CommentPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id;
   const [newComment, setNewComment] = useState("");
   const [showReply, setShowReply] = useState(false);
   const [replyTo, setReplyTo] = useState("");
@@ -35,7 +37,7 @@ export default function CommentPage({ params }: { params: { id: string } }) {
       const formData = new FormData();
       formData.append("content", newComment);
 
-      const response = await fetch(`http://127.0.0.1:8000/posts/${params.id}/comment`, {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${id}/comment`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -54,17 +56,36 @@ export default function CommentPage({ params }: { params: { id: string } }) {
     // TODO: Implement reply functionality
   };
 
-  const toggleReplyInput = (commentId: string) => {
+  const toggleReplyInput = async (commentId: string) => {
     setShowInputReply(prev => ({
       ...prev,
       [commentId]: !prev[commentId]
     }));
+
+    // Nếu chưa có reply cho comment này thì fetch
+    if (!replyReplies[commentId]) {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://127.0.0.1:8000/comments/${commentId}/replied`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setReplyReplies(prev => ({
+            ...prev,
+            [commentId]: data
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching replies:", err);
+      }
+    }
   };
 
   const handleLike = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/posts/${params.id}/like`, {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${id}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +111,7 @@ export default function CommentPage({ params }: { params: { id: string } }) {
   const handleRepost = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/posts/${params.id}/repost`, {
+      const response = await fetch(`http://127.0.0.1:8000/posts/${id}/repost`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,23 +152,32 @@ export default function CommentPage({ params }: { params: { id: string } }) {
     }));
   };
 
-  const handleReplySubmit = (postId: number, commentId: string) => {
-    if (!replyInputs[commentId]?.trim()) return;
-    
-    const newReply = {
-      id: Date.now(),
-      username: "User",
-      avatar: "https://placehold.co/40x40",
-      time: "Vừa xong",
-      content: replyInputs[commentId],
-    };
-  
-    // TODO: Implement reply submission
-  
-    setReplyInputs((prev) => ({
-      ...prev,
-      [commentId]: "",
-    }));
+  const handleReplySubmit = async (postId: number, commentId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append("content", replyInputs[commentId]);
+      const response = await fetch(`http://127.0.0.1:8000/comments/${commentId}/reply`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Failed to reply');
+      const data = await response.json();
+      console.log('Reply response:', data);
+      setReplyReplies(prev => ({
+        ...prev,
+        [commentId]: [...(prev[commentId] || []), data],
+      }));
+      setReplyInputs(prev => ({
+        ...prev,
+        [commentId]: "",
+      }));
+    } catch (error) {
+      console.error('Error replying:', error);
+    }
   };
 
   const handleLikeComment = async (commentId: string) => {
@@ -175,11 +205,32 @@ export default function CommentPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const fetchReplies = async (commentId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://127.0.0.1:8000/comments/${commentId}/replied`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setReplyReplies(prev => ({
+          ...prev,
+          [commentId]: data
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching replies:", err);
+    }
+  };
+
   function formatTime(createdAt: string) {
     const now = new Date();
     const postDate = new Date(createdAt);
-    const diffInMinutes = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
-    if (diffInMinutes < 60) {
+    const diffInMs = now.getTime() - postDate.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    if (diffInMinutes < 1) {
+      return "vừa xong";
+    } else if (diffInMinutes < 60) {
       return `${diffInMinutes} phút`;
     } else if (diffInMinutes < 1440) {
       const diffInHours = Math.floor(diffInMinutes / 60);
@@ -194,7 +245,7 @@ export default function CommentPage({ params }: { params: { id: string } }) {
     const fetchPost = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://127.0.0.1:8000/posts/${params.id}`, {
+        const response = await axios.get(`http://127.0.0.1:8000/posts/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setPost(response.data);
@@ -226,7 +277,7 @@ export default function CommentPage({ params }: { params: { id: string } }) {
       }
     };
     fetchPost();
-  }, [params.id, currentUser]);
+  }, [id, currentUser]);
 
   useEffect(() => {
     if (!post?.user_id) return;
@@ -260,12 +311,12 @@ export default function CommentPage({ params }: { params: { id: string } }) {
   }, []);
 
   useEffect(() => {
-    if (!post?._id && !post?.post_id && !params.id) return;
+    if (!post?._id && !post?.post_id && id) return;
     const fetchComments = async () => {
       try {
         const token = localStorage.getItem('token');
         const res = await axios.get(
-          `http://127.0.0.1:8000/posts/${post.post_id || post._id || params.id}/comments`,
+          `http://127.0.0.1:8000/posts/${post.post_id || post._id || id}/comments`,
           { headers: { 'Authorization': `Bearer ${token}` } }
         );
         setCommentList(res.data);
@@ -286,7 +337,34 @@ export default function CommentPage({ params }: { params: { id: string } }) {
       }
     };
     fetchComments();
-  }, [post, params.id, currentUser]);
+  }, [post, id, currentUser]);
+
+  // Thêm logic cập nhật/xóa comment
+  const handleEditComment = (commentId: string, newContent: string) => {
+    setCommentList(prev => prev.map(cmt =>
+      cmt.comment_id === commentId ? { ...cmt, content: newContent } : cmt
+    ));
+    // Nếu là reply thì cập nhật trong replyReplies
+    setReplyReplies(prev => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach(key => {
+        updated[key] = updated[key]?.map((reply: any) =>
+          reply.comment_id === commentId ? { ...reply, content: newContent } : reply
+        );
+      });
+      return updated;
+    });
+  };
+  const handleDeleteComment = (commentId: string) => {
+    setCommentList(prev => prev.filter(cmt => cmt.comment_id !== commentId));
+    setReplyReplies(prev => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach(key => {
+        updated[key] = updated[key]?.filter((reply: any) => reply.comment_id !== commentId);
+      });
+      return updated;
+    });
+  };
 
   return (
     <div className="w-full h-screen bg-gray-100 flex flex-col items-center p-4">
@@ -330,53 +408,29 @@ export default function CommentPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Comments list */}
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto p-2 max-h-[470px]">
             {commentList.length === 0 && (
               <div className="text-gray-400 text-sm">Chưa có bình luận nào.</div>
             )}
             {commentList.map((cmt: any) => (
-              <div key={cmt.comment_id || cmt._id} className="flex flex-col items-start space-x-3 border-b pb-2">
-                <div className="flex items-center gap-2">
-                  <img src={cmt.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-8 h-8 rounded-full" />
-                  <span className="font-semibold text-sm">{cmt.username || "user"}</span>
-                  <span className="text-xs text-gray-400">{cmt.created_at ? formatTime(cmt.created_at) : ""}</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm mt-1">{cmt.content}</div>
-                  {cmt.image && <img src={cmt.image} alt="Comment" className="mt-2 rounded-lg" />}
-                  {cmt.video && <video src={cmt.video} controls className="mt-2 rounded-lg w-full" />}
-                </div>
-                <div className="flex gap-4 text-gray-500 mt-3">
-                  <ActionButton 
-                    icon={<Heart size={18} className={commentLikes[cmt.comment_id] ? "text-red-500" : "text-gray-500"} />} 
-                    count={commentLikeCounts[cmt.comment_id] ?? 0} 
-                    onClick={() => handleLikeComment(cmt.comment_id)}
-                  />
-                  <ActionButton 
-                    icon={<MessageCircle size={18} />} 
-                    count={cmt.replies ?? 0} 
-                    onClick={() => toggleReplyInput(cmt.comment_id)}
-                  />
-                </div>
-                {showInputReply[cmt.comment_id] && (
-                  <div className="flex items-start space-x-2 mt-2 w-full">
-                    <img src={currentUser?.avatar || "https://placehold.co/32x32"} alt="Avatar" className="w-8 h-8 rounded-full" />
-                    <input
-                      type="text"
-                      className="flex-1 p-2 border rounded-lg text-sm"
-                      placeholder="Trả lời bình luận..."
-                      value={replyInputs[cmt.comment_id] || ""}
-                      onChange={e => setReplyInputs(prev => ({ ...prev, [cmt.comment_id]: e.target.value }))}
-                    />
-                    <button
-                      className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm"
-                      onClick={() => handleReplySubmit(post?.post_id, cmt.comment_id)}
-                    >
-                      Gửi
-                    </button>
-                  </div>
-                )}
-              </div>
+              <CommentItem
+                key={cmt.comment_id || cmt._id}
+                cmt={cmt}
+                currentUser={currentUser}
+                commentLikes={commentLikes}
+                commentLikeCounts={commentLikeCounts}
+                handleLikeComment={handleLikeComment}
+                showInputReply={showInputReply}
+                toggleReplyInput={toggleReplyInput}
+                replyInputs={replyInputs}
+                setReplyInputs={setReplyInputs}
+                handleReplySubmit={handleReplySubmit}
+                replyReplies={replyReplies}
+                fetchReplies={fetchReplies}
+                formatTime={formatTime}
+                onEditComment={handleEditComment}
+                onDeleteComment={handleDeleteComment}
+              />
             ))}
           </div>
 
@@ -415,5 +469,187 @@ function ActionButton({ icon, count, onClick }: { icon: ReactNode; count: number
       {icon}
       <span className="text-sm">{count}</span>
     </button>
+  );
+}
+
+function CommentItem({
+  cmt,
+  currentUser,
+  commentLikes,
+  commentLikeCounts,
+  handleLikeComment,
+  showInputReply,
+  toggleReplyInput,
+  replyInputs,
+  setReplyInputs,
+  handleReplySubmit,
+  replyReplies,
+  fetchReplies,
+  formatTime,
+  depth = 0,
+  onEditComment,
+  onDeleteComment,
+}: any) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(cmt.content);
+  const [commentUser, setCommentUser] = useState<any>(null);
+
+  // Fetch user info for comment
+  useEffect(() => {
+    const fetchCommentUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://127.0.0.1:8000/users/${cmt.user_id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setCommentUser(response.data.user);
+      } catch (err) {
+        console.error("Error fetching comment user:", err);
+      }
+    };
+    fetchCommentUser();
+  }, [cmt.user_id]);
+
+  // Hàm cập nhật comment
+  const handleEditSave = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('content', editValue);
+      const response = await fetch(`http://127.0.0.1:8000/comments/${cmt.comment_id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Failed to edit comment');
+      const data = await response.json();
+      setIsEditing(false);
+      if (onEditComment) onEditComment(cmt.comment_id, data.content);
+    } catch (error) {
+      console.error('Error editing comment:', error);
+    }
+  };
+
+  // Hàm xóa comment
+  const handleDelete = async () => {
+    if (!window.confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://127.0.0.1:8000/comments/${cmt.comment_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error('Failed to delete comment');
+      if (onDeleteComment) onDeleteComment(cmt.comment_id);
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
+  };
+
+  return (
+    <div
+      style={{ marginLeft: depth * 10, maxWidth: "100%" }}
+      className="flex flex-col items-start mt-2 border-b pb-2 w-full"
+    >
+      <div className="flex items-center gap-2 w-full">
+        <img src={commentUser?.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-8 h-8 rounded-full" />
+        <span className="font-semibold text-sm">{commentUser?.username || "user"}</span>
+        <span className="text-xs text-gray-400">
+          {cmt.created_at ? formatTime(cmt.created_at) : "--"}
+        </span>
+        {/* Edit/Delete option */}
+        {currentUser?.user_id === cmt.user_id && (
+          <div className="ml-auto flex gap-2">
+            {!isEditing && (
+              <>
+                <button className="text-blue-500 text-xs" onClick={() => setIsEditing(true)}>Sửa</button>
+                <button className="text-red-500 text-xs" onClick={handleDelete}>Xóa</button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="flex-1 w-full">
+        {isEditing ? (
+          <div className="flex gap-2 w-full mt-1">
+            <input
+              type="text"
+              className="flex-1 p-2 border rounded-lg text-sm"
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+            />
+            <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs" onClick={handleEditSave}>Lưu</button>
+            <button className="bg-gray-300 text-black px-2 py-1 rounded text-xs" onClick={() => { setIsEditing(false); setEditValue(cmt.content); }}>Hủy</button>
+          </div>
+        ) : (
+          <div className="text-sm mt-1 break-words">{cmt.content}</div>
+        )}
+        {cmt.image && <img src={cmt.image} alt="Comment" className="mt-2 rounded-lg" />}
+        {cmt.video && <video src={cmt.video} controls className="mt-2 rounded-lg w-full" />}
+      </div>
+      <div className="flex gap-4 text-gray-500 mt-3">
+        <ActionButton 
+          icon={<Heart size={18} className={commentLikes[cmt.comment_id] ? "text-red-500" : "text-gray-500"} />} 
+          count={commentLikeCounts[cmt.comment_id] ?? 0} 
+          onClick={() => handleLikeComment(cmt.comment_id)}
+        />
+        <ActionButton 
+          icon={<MessageCircle size={18} />} 
+          count={cmt.replies ?? 0} 
+          onClick={async () => {
+            toggleReplyInput(cmt.comment_id);
+            if (!replyReplies[cmt.comment_id]) await fetchReplies(cmt.comment_id);
+          }}
+        />
+      </div>
+      {/* Render reply đệ quy */}
+      {showInputReply[cmt.comment_id] && replyReplies[cmt.comment_id]?.map((reply: any) => (
+        <CommentItem
+          key={reply.comment_id || reply._id || reply.id}
+          cmt={{
+            ...reply,
+            created_at: reply.created_at || reply.createdAt || reply.timestamp
+          }}
+          currentUser={currentUser}
+          commentLikes={commentLikes}
+          commentLikeCounts={commentLikeCounts}
+          handleLikeComment={handleLikeComment}
+          showInputReply={showInputReply}
+          toggleReplyInput={toggleReplyInput}
+          replyInputs={replyInputs}
+          setReplyInputs={setReplyInputs}
+          handleReplySubmit={handleReplySubmit}
+          replyReplies={replyReplies}
+          fetchReplies={fetchReplies}
+          formatTime={formatTime}
+          depth={depth + 1}
+          onEditComment={onEditComment}
+          onDeleteComment={onDeleteComment}
+        />
+      ))}
+      {/* Input reply */}
+      {showInputReply[cmt.comment_id] && (
+        <div className="flex items-start space-x-2 mt-2 w-[90%]">
+          <img src={currentUser?.avatar || "https://placehold.co/32x32"} alt="Avatar" className="w-8 h-8 rounded-full" />
+          <input
+            type="text"
+            className="flex-1 p-2 border rounded-lg text-sm"
+            placeholder="Trả lời bình luận..."
+            value={replyInputs[cmt.comment_id] || ""}
+            onChange={e => setReplyInputs((prev: any) => ({ ...prev, [cmt.comment_id]: e.target.value }))}
+          />
+          <button
+            className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm"
+            onClick={() => handleReplySubmit(cmt.post_id, cmt.comment_id)}
+          >
+            Gửi
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

@@ -159,8 +159,8 @@ class Comment_dao:
                 "likes": 0,
                 "liked_by": [],
                 "replies": 0,
-                "created_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow(),
+                "created_at": datetime.now(),
+                "updated_at": datetime.now(),
             }
 
             # 4. Xử lý image
@@ -202,7 +202,7 @@ class Comment_dao:
             self.db["post"].update_one(
                 {"post_id": parent["post_id"]},
                 {"$inc": {"comments": 1}}
-)
+            )
 
             return reply
 
@@ -260,22 +260,22 @@ class Comment_dao:
             if comment["user_id"] != user_id:
                 raise HTTPException(status_code=403, detail="You are not authorized to delete this comment")
 
-            # If this is a parent comment, update post's comment count
-            if not comment.get("parent_comment_id"):
-                post_collection = self.db["post"]
-                post_collection.update_one(
-                    {"post_id": comment["post_id"]},
-                    {"$inc": {"comments": -1}}
-                )
-            else:
-                # If this is a reply, update parent comment's reply count
+            # Nếu là reply thì giảm replies count của comment cha
+            if comment.get("parent_comment_id"):
                 self.collection.update_one(
                     {"comment_id": comment["parent_comment_id"]},
                     {"$inc": {"replies": -1}}
                 )
 
-            # Delete the comment
+            # Xóa comment
             self.collection.delete_one({"comment_id": comment_id})
+
+            # Luôn giảm comments count của post đúng 1 lần
+            self.db["post"].update_one(
+                {"post_id": comment["post_id"]},
+                {"$inc": {"comments": -1}}
+            )
+
             return {"message": "Comment deleted successfully"}
 
         except Exception as e:

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from DAO.DAO_manager import DAO_Manager
 from auth.jwt_handler import create_access_token
 import json
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from bson import ObjectId
 from datetime import datetime
 from auth.dependencies import get_current_user
@@ -121,8 +121,10 @@ def getCurrentUser(user_id: str = Depends(get_current_user)):
 
 @app.get("/media/{file_id}")
 def get_media(file_id: str, is_image: bool = True):
-    media = Manager.get_media(file_id, is_image)
-    return media
+    file_data, content_type = Manager.get_media(file_id, is_image)
+    if not file_data:
+        raise HTTPException(status_code=404, detail="File not found")
+    return StreamingResponse(file_data, media_type=content_type)
 
 @app.get("/posts")
 def get_posts():

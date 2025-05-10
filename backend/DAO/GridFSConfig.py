@@ -54,24 +54,15 @@ class GridFSConfig:
 
     def get_file(self, file_id, is_image=True):
         try:
-            # Get file from GridFS
             file_data = self.fs.get(ObjectId(file_id))
-            
-            # Get metadata
             if is_image:
                 metadata = self.images.find_one({"file_id": file_id})
             else:
                 metadata = self.videos.find_one({"file_id": file_id})
-                
-            return {
-                "data": file_data.read(),
-                "filename": metadata["filename"],
-                "content_type": metadata["content_type"]
-            }
-            
+            return file_data, metadata["content_type"] if metadata else "application/octet-stream"
         except Exception as e:
             print(f"Error getting file from GridFS: {e}")
-            return None
+            return None, None
 
     def delete_file(self, file_id, is_image=True):
         try:

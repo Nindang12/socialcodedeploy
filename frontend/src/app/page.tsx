@@ -1,5 +1,5 @@
 'use client'
-import { MessageCircle, Heart, Repeat, Smile, Image, MapPin, AlignLeft, X, MoreHorizontal, Ellipsis } from "lucide-react";
+import { MessageCircle, Heart, Repeat, Smile, Image, MapPin, AlignLeft, X, MoreHorizontal, Ellipsis, Video } from "lucide-react";
 import { useState,ReactNode, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -317,10 +317,7 @@ export default function Home() {
                       />
                     </label>
                     <label>
-                      <svg width="20" height="20" fill="currentColor" className="cursor-pointer hover:text-black">
-                        <rect width="20" height="20" rx="3" fill="#ccc"/>
-                        <text x="10" y="15" textAnchor="middle" fontSize="10" fill="#333">Video</text>
-                      </svg>
+                      <Video size={20} className="cursor-pointer hover:text-black" />
                       <input
                         type="file"
                         accept="video/*"

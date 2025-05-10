@@ -7,6 +7,7 @@ from DAO.Comment.Comment_dao import Comment_dao
 from fastapi import  HTTPException 
 # from DAO.Notification.Notification_dao import Notification_dao
 from fastapi import UploadFile
+from DAO.GridFSConfig import gridfs_client
 class DAO_Manager:
     def __init__(self):
         self.user_dao = User_dao()
@@ -53,8 +54,8 @@ class DAO_Manager:
     def get_post_by_id(self, post_id: str): 
         return self.post_dao.get_post_by_id(post_id)
 
-    def get_media(self, file_id: str, is_image: bool = True):
-        return self.post_dao.get_media(file_id, is_image)
+    def get_media(self, file_id, is_image=True):
+        return gridfs_client.get_file(file_id, is_image)
         
     def edit_post(self, post_id: str, content: str, user_id: str):
         return self.post_dao.edit_post(post_id, content, user_id)
