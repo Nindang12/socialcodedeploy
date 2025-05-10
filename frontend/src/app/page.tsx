@@ -757,25 +757,27 @@ function Post({
 
       {/* Content */}
       {editMode ? (
-        <div className="mt-2" onClick={(e) => {e.stopPropagation()}}>
-          <textarea 
-            className="w-full p-2 border rounded-lg"
-            value={editedContent}
-            onChange={(e) => setEditedContent(e.target.value)}
-          />
-          <div className="flex gap-2 mt-2">
-            <button 
-              className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              onClick={handleEditPost}
-            >
-              Lưu 
-            </button>
-            <button
-              className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
-              onClick={() => setEditMode(false)}
-            >
-              Hủy
-            </button>
+        <div className="mt-2" >
+          <div className="flex flex-col gap-2" onClick={(e) => {e.stopPropagation()}}>
+            <textarea 
+              className="w-full p-2 border rounded-lg"
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+            />
+            <div className="flex gap-2 mt-2">
+              <button 
+                className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                onClick={handleEditPost}
+              >
+                Lưu 
+              </button>
+              <button
+                className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+                onClick={() => setEditMode(false)}
+              >
+                Hủy
+              </button>
+            </div>
           </div>
           {errorMsg && (
             <div className="text-red-500 text-sm mt-2">{errorMsg}</div>
@@ -783,14 +785,19 @@ function Post({
         </div>
       ) : (
         <>
-          <p className="mt-2">{content}</p>
-          {errorMsg && (
-            <div className="text-red-500 text-sm mt-2">{errorMsg}</div>
-          )}
+          <div 
+            className="cursor-pointer" 
+            onClick={() => router.push(`/comment/${post_id}`)}
+          >
+            <p className="mt-2">{content}</p>
+            {errorMsg && (
+              <div className="text-red-500 text-sm mt-2">{errorMsg}</div>
+            )}
+            {image && <img src={`${image}`} alt="Post" className="mt-2 rounded-lg" />}
+            {video && <video src={`${video}`} controls className="mt-2 rounded-lg w-full" />}
+          </div>
         </>
       )}
-      {image && <img src={`${image}`} alt="Post" className="mt-2 rounded-lg" />}
-      {video && <video src={`${video}`} controls className="mt-2 rounded-lg w-full" />}
 
       {/* Action Buttons */}
       <div className="flex gap-4 text-gray-500 mt-3">
