@@ -31,6 +31,12 @@ class Comment(BaseModel):
     content: str
     parent_comment_id: Optional[str] = None
 
+# create separate user
+# class Userlogin(BaseModel):
+#     phone_number: optional[str]
+#     email: optional[str]
+#     username: optional[str]
+#     password: optional[str]
 
 # ------------------------
 # Auth Endpoints
