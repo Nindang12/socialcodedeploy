@@ -20,7 +20,14 @@ class DAO_Manager:
 
     def get_user(self, user_id: str):
         return self.user_dao.get_user(user_id)
-    
+
+    # input validation and error handling (idea if usefull)
+    # def get_user(self, user_id: str):
+    #     user = self.user_dao.get_user(user_id)
+    #     if not user:
+    #         raise HTTPException(status_code=404, detail="User not found")
+    #     return user
+
     def check_user_exists(self, phone_number: str = None, email: str = None, username: str = None):
         if phone_number and self.user_dao.get_user_by_phone_number(phone_number):
             return True
@@ -42,6 +49,7 @@ class DAO_Manager:
     def get_user_by_full_name(self, full_name: str):
         return self.user_dao.get_user_by_full_name(full_name)
     
+    # `identifier` can be either username or email, validate appropriately
     def authenticate_user(self, phone_number: str, email: str, username: str, password: str):
         return self.user_dao.authenticate_user(phone_number, email, username, password)
     # Post DAO

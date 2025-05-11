@@ -106,7 +106,7 @@ class User_dao:
             {"user_id": target_user_id},
             {"$addToSet": {"followers": current_user_id}}
         )
-        return {"message": "Followed user successfully"}
+        return {"message": "Follow user successfully"}
     def unfollow_user(self, current_user_id: str, target_user_id: str):
         if current_user_id == target_user_id:
             raise HTTPException(status_code=400, detail="You cannot unfollow yourself")
