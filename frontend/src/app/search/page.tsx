@@ -52,7 +52,7 @@ export default function SearchPage() {
       if (activeTab === 'posts') {
         url = `http://127.0.0.1:8000/search/posts?query=${encodeURIComponent(query)}`;
       } else {
-        url = `http://127.0.0.1:8000/users/search?username=${encodeURIComponent(query)}`;
+        url = `http://127.0.0.1:8000/search/users?query=${encodeURIComponent(query)}`;
       }
       axios.get(url, {
         headers: { 'Authorization': `Bearer ${token}` }

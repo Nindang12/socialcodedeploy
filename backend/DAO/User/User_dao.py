@@ -71,6 +71,21 @@ class User_dao:
             user["_id"] = str(user["_id"])  
             users = self.collection.find({}, {"password": 0})
         return user_list
+    def search_user(self, query: str = None):
+        if not query:
+            return []
+        regex = {"$regex": query, "$options": "i"}
+        or_conditions = [
+            {"username": regex},
+            {"full_name": regex},
+            {"email": regex},
+            {"phone_number": regex},
+        ]
+        mongo_query = {"$or": or_conditions}
+        result = list(self.collection.find(mongo_query, {"password": 0}))
+        for user in result:
+            user["_id"] = str(user["_id"])
+        return result
     def follow_user(self, current_user_id: str, target_user_id: str):
         if current_user_id == target_user_id:
             raise HTTPException(status_code=400, detail="You cannot follow yourself")

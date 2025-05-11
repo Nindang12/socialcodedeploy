@@ -320,14 +320,9 @@ def get_user(user_id: str):
     user = Manager.get_user(user_id)
     return {"user": user}
 
-@app.get("/users/search")
-def search_user(
-    user_id: str = None,
-    email: str = None,
-    username: str = None,
-    phone_number: str = None
-):
-    result = Manager.search_user(user_id, email, username, phone_number)
+@app.get("/search/users")
+def search_user(query: str = None):
+    result = Manager.search_user(query)
     return {"users": result}
 
 @app.post("/users/{user_id}/follow")
