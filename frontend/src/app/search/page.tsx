@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Heart, Repeat, MessageCircle } from "lucide-react";
 import { debounce } from 'lodash';
+import Link from "next/link";
 
 function formatTime(createdAt: string) {
   const now = new Date();
@@ -339,10 +340,14 @@ export default function SearchPage() {
               );
             })}
             {activeTab === 'users' && results.map((user: any) => (
-              <div key={user.user_id} className="p-2 border rounded mb-2">
+              <Link
+                key={user.user_id}
+                href={`/profile/${user.user_id}`}
+                className="block p-2 border rounded mb-2 hover:bg-gray-100 transition"
+              >
                 <div className="font-semibold">{user.username}</div>
                 <div className="text-xs text-gray-500">ID: {user.user_id}</div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

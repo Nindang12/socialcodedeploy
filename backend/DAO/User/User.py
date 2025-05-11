@@ -1,3 +1,5 @@
+from fastapi import UploadFile
+
 class User:
     
     def __init__(self, user_id: str, full_name: str, phone_number: str, username: str, email: str, password: str):
@@ -7,7 +9,7 @@ class User:
         self.username = username
         self.email = email
         self.password = password
-
+        self.bio = bio
     def to_json(self):
         return {
             "user_id": self.user_id,

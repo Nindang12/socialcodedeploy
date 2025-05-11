@@ -340,6 +340,7 @@ def unfollow_user(user_id: str, current_user_id: str = Depends(get_current_user)
 def get_user_posts(user_id: str):
     posts = Manager.get_user_posts(user_id)
     return {"posts": posts}
+
 # ------------------------
 # Notification
 # ------------------------

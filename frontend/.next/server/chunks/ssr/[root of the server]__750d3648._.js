@@ -106,7 +106,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Image$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/image.js [app-ssr] (ecmascript) <export default as Image>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$left$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowLeftIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/arrow-left.js [app-ssr] (ecmascript) <export default as ArrowLeftIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$video$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Video$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/video.js [app-ssr] (ecmascript) <export default as Video>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
 "use client";
+;
 ;
 ;
 ;
@@ -560,9 +562,16 @@ function CommentPage() {
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "font-semibold",
-                                                    children: user?.username || "username"
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                                    href: `/profile/${user?.user_id}`,
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-sm font-semibold text-black hover:underline cursor-pointer",
+                                                        children: user?.username || "username"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                                        lineNumber: 415,
+                                                        columnNumber: 19
+                                                    }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
                                                     lineNumber: 414,
@@ -573,7 +582,7 @@ function CommentPage() {
                                                     children: post?.created_at ? formatTime(post.created_at) : "time"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 415,
+                                                    lineNumber: 419,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
@@ -593,7 +602,7 @@ function CommentPage() {
                                     children: post?.content || "content"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 418,
+                                    lineNumber: 422,
                                     columnNumber: 13
                                 }, this),
                                 post?.image && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
@@ -602,7 +611,7 @@ function CommentPage() {
                                     className: "mt-2 rounded-lg"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 419,
+                                    lineNumber: 423,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -614,14 +623,14 @@ function CommentPage() {
                                                 className: liked ? "text-red-500" : "text-gray-500"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                lineNumber: 424,
+                                                lineNumber: 428,
                                                 columnNumber: 23
                                             }, void 0),
                                             count: likeCount,
                                             onClick: handleLike
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 423,
+                                            lineNumber: 427,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -629,14 +638,14 @@ function CommentPage() {
                                                 size: 18
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                lineNumber: 429,
+                                                lineNumber: 433,
                                                 columnNumber: 23
                                             }, void 0),
                                             count: post?.comments ?? 0,
                                             onClick: ()=>{}
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 428,
+                                            lineNumber: 432,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -645,20 +654,20 @@ function CommentPage() {
                                                 className: reposted ? "text-green-500" : "text-gray-500"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                lineNumber: 434,
+                                                lineNumber: 438,
                                                 columnNumber: 23
                                             }, void 0),
                                             count: repostCount,
                                             onClick: handleRepost
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 433,
+                                            lineNumber: 437,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 422,
+                                    lineNumber: 426,
                                     columnNumber: 13
                                 }, this)
                             ]
@@ -675,7 +684,7 @@ function CommentPage() {
                                     children: "Chưa có bình luận nào."
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 444,
+                                    lineNumber: 448,
                                     columnNumber: 15
                                 }, this),
                                 commentList.map((cmt)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CommentItem, {
@@ -702,13 +711,13 @@ function CommentPage() {
                                         setReplyVideos: setReplyVideos
                                     }, cmt.comment_id || cmt._id, false, {
                                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                        lineNumber: 447,
+                                        lineNumber: 451,
                                         columnNumber: 15
                                     }, this))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                            lineNumber: 442,
+                            lineNumber: 446,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -720,7 +729,7 @@ function CommentPage() {
                                     className: "w-10 h-10 rounded-full"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 476,
+                                    lineNumber: 480,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -731,7 +740,7 @@ function CommentPage() {
                                     onChange: (e)=>setNewComment(e.target.value)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 477,
+                                    lineNumber: 481,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -745,7 +754,7 @@ function CommentPage() {
                                                     className: "hover:text-black"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 481,
+                                                    lineNumber: 485,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -760,13 +769,13 @@ function CommentPage() {
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 482,
+                                                    lineNumber: 486,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 480,
+                                            lineNumber: 484,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -777,7 +786,7 @@ function CommentPage() {
                                                     className: "hover:text-black"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 485,
+                                                    lineNumber: 489,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -792,13 +801,13 @@ function CommentPage() {
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 486,
+                                                    lineNumber: 490,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 484,
+                                            lineNumber: 488,
                                             columnNumber: 15
                                         }, this),
                                         commentImage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -810,7 +819,7 @@ function CommentPage() {
                                                     className: "w-10 h-10 object-cover rounded"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 490,
+                                                    lineNumber: 494,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -820,13 +829,13 @@ function CommentPage() {
                                                     children: "×"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 491,
+                                                    lineNumber: 495,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 489,
+                                            lineNumber: 493,
                                             columnNumber: 17
                                         }, this),
                                         commentVideo && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -838,7 +847,7 @@ function CommentPage() {
                                                     controls: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 496,
+                                                    lineNumber: 500,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -848,19 +857,19 @@ function CommentPage() {
                                                     children: "×"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 497,
+                                                    lineNumber: 501,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 495,
+                                            lineNumber: 499,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 479,
+                                    lineNumber: 483,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -872,13 +881,13 @@ function CommentPage() {
                                     children: "Đăng"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 502,
+                                    lineNumber: 506,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                            lineNumber: 475,
+                            lineNumber: 479,
                             columnNumber: 11
                         }, this),
                         commentError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -886,7 +895,7 @@ function CommentPage() {
                             children: commentError
                         }, void 0, false, {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                            lineNumber: 504,
+                            lineNumber: 508,
                             columnNumber: 28
                         }, this)
                     ]
@@ -918,13 +927,13 @@ function ActionButton({ icon, count, onClick }) {
                 children: count
             }, void 0, false, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 516,
+                lineNumber: 520,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/comment/[id]/page.tsx",
-        lineNumber: 514,
+        lineNumber: 518,
         columnNumber: 5
     }, this);
 }
@@ -1005,7 +1014,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         className: "w-8 h-8 rounded-full"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 611,
+                        lineNumber: 615,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1013,7 +1022,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         children: commentUser?.username || "user"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 612,
+                        lineNumber: 616,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1021,7 +1030,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         children: cmt.created_at ? formatTime(cmt.created_at) : "--"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 613,
+                        lineNumber: 617,
                         columnNumber: 9
                     }, this),
                     currentUser?.user_id === cmt.user_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1034,7 +1043,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                     children: "Sửa"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 621,
+                                    lineNumber: 625,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1043,20 +1052,20 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                     children: "Xóa"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 622,
+                                    lineNumber: 626,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true)
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 618,
+                        lineNumber: 622,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 610,
+                lineNumber: 614,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1072,7 +1081,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 onChange: (e)=>setEditValue(e.target.value)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 631,
+                                lineNumber: 635,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1081,7 +1090,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 children: "Lưu"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 637,
+                                lineNumber: 641,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1093,20 +1102,20 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 children: "Hủy"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 638,
+                                lineNumber: 642,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 630,
+                        lineNumber: 634,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-sm mt-1 break-words",
                         children: cmt.content
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 641,
+                        lineNumber: 645,
                         columnNumber: 11
                     }, this),
                     cmt.image_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
@@ -1115,7 +1124,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         className: "mt-2 rounded-lg"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 645,
+                        lineNumber: 649,
                         columnNumber: 11
                     }, this),
                     cmt.video_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
@@ -1124,13 +1133,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         className: "mt-2 rounded-lg w-full"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 652,
+                        lineNumber: 656,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 628,
+                lineNumber: 632,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1142,14 +1151,14 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                             className: commentLikes[cmt.comment_id] ? "text-red-500" : "text-gray-500"
                         }, void 0, false, {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                            lineNumber: 661,
+                            lineNumber: 665,
                             columnNumber: 17
                         }, void 0),
                         count: commentLikeCounts[cmt.comment_id] ?? 0,
                         onClick: ()=>handleLikeComment(cmt.comment_id)
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 660,
+                        lineNumber: 664,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -1157,7 +1166,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                             size: 18
                         }, void 0, false, {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                            lineNumber: 666,
+                            lineNumber: 670,
                             columnNumber: 17
                         }, void 0),
                         count: cmt.replies ?? 0,
@@ -1167,13 +1176,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         }
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 665,
+                        lineNumber: 669,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 659,
+                lineNumber: 663,
                 columnNumber: 7
             }, this),
             showInputReply[cmt.comment_id] && replyReplies[cmt.comment_id]?.map((reply)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CommentItem, {
@@ -1204,7 +1213,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                     setReplyVideos: setReplyVideos
                 }, reply.comment_id || reply._id || reply.id, false, {
                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                    lineNumber: 676,
+                    lineNumber: 680,
                     columnNumber: 9
                 }, this)),
             showInputReply[cmt.comment_id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1216,7 +1225,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         className: "w-8 h-8 rounded-full"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 708,
+                        lineNumber: 712,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1230,7 +1239,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 }))
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 709,
+                        lineNumber: 713,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1241,7 +1250,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 className: "hover:text-black"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 718,
+                                lineNumber: 722,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1259,13 +1268,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 719,
+                                lineNumber: 723,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 717,
+                        lineNumber: 721,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1276,7 +1285,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 className: "hover:text-black"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 733,
+                                lineNumber: 737,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1294,13 +1303,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 734,
+                                lineNumber: 738,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 732,
+                        lineNumber: 736,
                         columnNumber: 11
                     }, this),
                     replyImages[cmt.comment_id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1312,7 +1321,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 className: "w-10 h-10 object-cover rounded"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 750,
+                                lineNumber: 754,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1325,13 +1334,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 children: "×"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 755,
+                                lineNumber: 759,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 749,
+                        lineNumber: 753,
                         columnNumber: 13
                     }, this),
                     replyVideos[cmt.comment_id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1343,7 +1352,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 controls: true
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 770,
+                                lineNumber: 774,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1356,13 +1365,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 children: "×"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 775,
+                                lineNumber: 779,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 769,
+                        lineNumber: 773,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1371,19 +1380,19 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         children: "Gửi"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 787,
+                        lineNumber: 791,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 707,
+                lineNumber: 711,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/comment/[id]/page.tsx",
-        lineNumber: 606,
+        lineNumber: 610,
         columnNumber: 5
     }, this);
 }

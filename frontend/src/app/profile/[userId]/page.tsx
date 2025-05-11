@@ -67,6 +67,15 @@ export default function ProfilePage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (user && currentUser) {
+      const isFollowed = Array.isArray(user.followers)
+        ? user.followers.map((id: string) => String(id).trim()).includes(String(currentUser.user_id).trim())
+        : false;
+      setIsFollowing(isFollowed);
+    }
+  }, [user, currentUser]);
+
   const PostCard = ({ post, onActionDone }: { post: any, onActionDone: () => void }) => {
     const isLiked = Array.isArray(post.liked_by) && currentUser
       ? post.liked_by.map((id: string) => String(id).trim()).includes(String(currentUser.user_id).trim())
@@ -359,7 +368,7 @@ export default function ProfilePage() {
         },
       });
       if (response.ok) {
-        setIsFollowing(true);
+        setIsFollowing(!isFollowing);
         await fetchProfile();
       }
     } catch (error) {

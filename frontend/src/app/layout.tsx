@@ -38,7 +38,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className={"flex"}>
-          <Sidebar/>
+          {pathname !== "/login" && pathname !== "/signup" && <Sidebar />}
           {children}
         </div>
       </body>

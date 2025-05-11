@@ -425,8 +425,16 @@
     top: calc(var(--spacing) * 2.5);
   }
 
+  .top-10 {
+    top: calc(var(--spacing) * 10);
+  }
+
   .right-0 {
     right: calc(var(--spacing) * 0);
+  }
+
+  .right-2 {
+    right: calc(var(--spacing) * 2);
   }
 
   .bottom-0 {
@@ -1270,6 +1278,10 @@
   .antialiased {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  .opacity-50 {
+    opacity: .5;
   }
 
   .opacity-60 {

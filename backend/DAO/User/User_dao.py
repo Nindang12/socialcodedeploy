@@ -35,8 +35,8 @@ class User_dao:
         if user:
             user["_id"] = str(user["_id"])
             return user
-        return None
-        
+        return None                                                                                                                                                                                                                                                                                                                                             
+
     def get_user_by_full_name(self, full_name: str):
         return self.collection.find_one({"full_name": full_name})
     def get_user_by_phone_number(self, phone_number: str):

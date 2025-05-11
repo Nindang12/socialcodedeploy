@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { MessageCircle, Heart, Repeat, Image, ArrowLeftIcon, Video } from "lucide-react";
 import { ReactNode } from "react";
-
+import Link from "next/link";
 export default function CommentPage() {
   const router = useRouter();
   const params = useParams();
@@ -411,7 +411,11 @@ export default function CommentPage() {
             <div className="flex items-center space-x-3">
               <img src={user?.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
               <div>
-                <p className="font-semibold">{user?.username || "username"}</p>
+                <Link href={`/profile/${user?.user_id}`}>
+                  <p className="text-sm font-semibold text-black hover:underline cursor-pointer">
+                    {user?.username || "username"}
+                  </p>
+                </Link>
                 <p className="text-sm text-gray-500">{post?.created_at ? formatTime(post.created_at) : "time"}</p>
               </div>
             </div>

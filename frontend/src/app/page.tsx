@@ -66,7 +66,8 @@ interface UserResponse {
   user: {
     username: string;
     user_id: string;
-    // ... các trường khác nếu cần
+    followers?: string[];
+    following?: string[];
   };
 }
 
@@ -295,8 +296,8 @@ export default function Home() {
           </div>
 
           {showUploadPost && (
-            <div className="fixed inset-0 h-full flex text-black items-center justify-center bg-black/50">
-              <div className="bg-white w-[600px] rounded-2xl shadow-lg p-4 translate-x-10">
+            <div className="fixed  inset-0 h-full flex text-black items-center justify-center bg-black/50 z-50">
+              <div className="bg-white w-[600px]  rounded-2xl shadow-lg p-4 translate-x-10">
                 <div className="flex justify-between items-center border-b pb-2">
                   <button className="text-gray-600 hover:text-black">
                     <X size={22} onClick={onClose} className="cursor-pointer" />
@@ -477,6 +478,35 @@ function Post({
   const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [commentImage, setCommentImage] = useState<File | null>(null);
   const [commentVideo, setCommentVideo] = useState<File | null>(null);
+
+  // Check if current user is following the post author
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (!token || !user_id || !currentUser?.user_id) return;
+      if (String(user_id) === String(currentUser.user_id)) return;
+
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/users/${user_id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const followers = data.user?.followers || [];
+          const isUserFollowing = followers
+            .map((id: string) => String(id).trim())
+            .includes(String(currentUser.user_id).trim());
+          setIsFollowing(isUserFollowing);
+        }
+      } catch (error) {
+        console.error('Error checking follow status:', error);
+      }
+    };
+
+    checkFollowStatus();
+  }, [token, user_id, currentUser]);
 
   useEffect(() => {
     if (!post_id || !token || !currentUser) return;
@@ -668,6 +698,29 @@ function Post({
     if (String(user_id) === String(currentUser.user_id)) return;
     setIsFollowLoading(true);
     try {
+      // First check if already following
+      const checkResponse = await fetch(`http://127.0.0.1:8000/users/${user_id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (checkResponse.ok) {
+        const userData = await checkResponse.json();
+        const followers = userData.user?.followers || [];
+        const alreadyFollowing = followers
+          .map((id: string) => String(id).trim())
+          .includes(String(currentUser.user_id).trim());
+          
+        if (alreadyFollowing) {
+          console.log('Already following this user');
+          setIsFollowing(true);
+          setIsFollowLoading(false);
+          return;
+        }
+      }
+
+      // If not following, proceed with follow request
       const response = await fetch(`http://127.0.0.1:8000/users/${user_id}/follow`, {
         method: 'POST',
         headers: {
@@ -675,18 +728,14 @@ function Post({
           'Authorization': `Bearer ${token}`,
         },
       });
+      
       if (response.ok) {
         const data = await response.json();
-        console.log("API response after follow:", data);
-        if (data && currentUser) {
-          const followers = (data.user && Array.isArray(data.user.followers))
-            ? data.user.followers
-            : (Array.isArray(data.followers) ? data.followers : []);
-          const isUserFollowing = followers
-            .map((id: string) => String(id).trim())
-            .includes(String(currentUser.user_id).trim());
-          setIsFollowing(isUserFollowing);
-        }
+        const followers = data.user?.followers || [];
+        const isUserFollowing = followers
+          .map((id: string) => String(id).trim())
+          .includes(String(currentUser.user_id).trim());
+        setIsFollowing(isUserFollowing);
       }
     } catch (error) {
       console.error('Error following user:', error);
@@ -700,6 +749,29 @@ function Post({
     if (String(user_id) === String(currentUser.user_id)) return;
     setIsFollowLoading(true);
     try {
+      // First check if actually following
+      const checkResponse = await fetch(`http://127.0.0.1:8000/users/${user_id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (checkResponse.ok) {
+        const userData = await checkResponse.json();
+        const followers = userData.user?.followers || [];
+        const isFollowing = followers
+          .map((id: string) => String(id).trim())
+          .includes(String(currentUser.user_id).trim());
+          
+        if (!isFollowing) {
+          console.log('Not following this user');
+          setIsFollowing(false);
+          setIsFollowLoading(false);
+          return;
+        }
+      }
+
+      // If following, proceed with unfollow request
       const response = await fetch(`http://127.0.0.1:8000/users/${user_id}/unfollow`, {
         method: 'POST',
         headers: {
@@ -707,17 +779,14 @@ function Post({
           'Authorization': `Bearer ${token}`,
         },
       });
+      
       if (response.ok) {
         const data = await response.json();
-        if (data && currentUser) {
-          const followers = (data.user && Array.isArray(data.user.followers))
-            ? data.user.followers
-            : (Array.isArray(data.followers) ? data.followers : []);
-          const isUserFollowing = followers
-            .map((id: string) => String(id).trim())
-            .includes(String(currentUser.user_id).trim());
-          setIsFollowing(isUserFollowing);
-        }
+        const followers = data.user?.followers || [];
+        const isUserFollowing = followers
+          .map((id: string) => String(id).trim())
+          .includes(String(currentUser.user_id).trim());
+        setIsFollowing(isUserFollowing);
       }
     } catch (error) {
       console.error('Error unfollowing user:', error);
@@ -744,7 +813,7 @@ function Post({
   return (
     <div className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
       {/* Header */}
-      <div className="flex justify-between">
+      <div className="flex justify-between relative">
         <div className="flex items-center space-x-3">
           <img src={avatar} alt="Avatar" className="w-10 h-10 rounded-full" />
           <div>
@@ -795,7 +864,7 @@ function Post({
         {showOptions && (
           <div
             ref={optionRef}
-            className="absolute bg-white border border-gray-200 shadow-md p-2 rounded-lg translate-x-[230%] translate-y-7"
+            className="absolute right-2 top-10 z-50 bg-white border border-gray-200 shadow-md p-2 rounded-lg"
             onClick={(e) => { e.stopPropagation(); }}
           >
             <button className="w-full text-left hover:bg-gray-100 p-2" onClick={() => {setEditMode(true);setShowOptions(false);}}>Chỉnh sửa</button>
