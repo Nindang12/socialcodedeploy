@@ -343,6 +343,39 @@ export default function Home() {
                     )}
                   </div>
 
+                  {selectedImage && (
+                    <div className="relative w-32 h-20 mt-2">
+                      <img
+                        src={URL.createObjectURL(selectedImage)}
+                        alt="preview"
+                        className="w-full h-full object-cover rounded"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
+                        onClick={() => setSelectedImage(null)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  {selectedVideo && (
+                    <div className="relative w-40 h-24 mt-2">
+                      <video
+                        src={URL.createObjectURL(selectedVideo)}
+                        className="w-full h-full object-cover rounded"
+                        controls
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
+                        onClick={() => setSelectedVideo(null)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-center border-t pt-3">
                     <button className="text-gray-500 text-sm">
                       Bất kỳ ai cũng có thể trả lời và trích dẫn
@@ -417,6 +450,10 @@ function Post({
   const [errorMsg, setErrorMsg] = useState("");
   const optionRef = useRef<HTMLDivElement>(null);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
+
+  // Thêm state cho ảnh/video khi comment
+  const [commentImage, setCommentImage] = useState<File | null>(null);
+  const [commentVideo, setCommentVideo] = useState<File | null>(null);
 
   useEffect(() => {
     console.log("useEffect run, currentUser:", currentUser);
@@ -532,7 +569,12 @@ function Post({
     try {
       const formData = new FormData();
       formData.append("content", newComment);
-  
+      if (commentImage) {
+        formData.append("image", commentImage);
+      }
+      if (commentVideo) {
+        formData.append("video", commentVideo);
+      }
       const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/comment`, {
         method: 'POST',
         headers: {
@@ -540,11 +582,13 @@ function Post({
         },
         body: formData,
       });
-  
       if (response.ok) {
         const data = await response.json();
-        setCommentCount(data.comments);
+        setCommentCount(prev => (data.comments ? data.comments : prev + 1));
         setNewComment("");
+        setCommentImage(null);
+        setCommentVideo(null);
+        setShowComment(false);
       } else {
         console.error('Failed to comment on post:', response.status);
       }
@@ -865,8 +909,63 @@ function Post({
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                   />
-                  <div className="flex space-x-3 text-gray-500 mt-2">
-                    <button><Image size={18} /></button>
+                  <div className="flex space-x-3 text-gray-500 mt-2 items-center">
+                    <label>
+                      <Image size={18} className="cursor-pointer hover:text-black" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={e => {
+                          const file = e.target.files?.[0] || null;
+                          setCommentImage(file);
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <Video size={18} className="cursor-pointer hover:text-black" />
+                      <input
+                        type="file"
+                        accept="video/*"
+                        style={{ display: "none" }}
+                        onChange={e => {
+                          const file = e.target.files?.[0] || null;
+                          setCommentVideo(file);
+                        }}
+                      />
+                    </label>
+                    {commentImage && (
+                      <div className="relative w-10 h-10">
+                        <img
+                          src={URL.createObjectURL(commentImage)}
+                          alt="preview"
+                          className="w-10 h-10 object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
+                          onClick={() => setCommentImage(null)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    {commentVideo && (
+                      <div className="relative w-16 h-10">
+                        <video
+                          src={URL.createObjectURL(commentVideo)}
+                          className="w-16 h-10 object-cover rounded"
+                          controls
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
+                          onClick={() => setCommentVideo(null)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
