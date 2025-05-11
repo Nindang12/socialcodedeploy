@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound, useParams } from 'next/navigation'
 import { Tab } from '@headlessui/react'
-import { MessageCircle, Heart, Repeat, Video, MoreHorizontal, X } from "lucide-react";
+import { MessageCircle, Heart, Repeat, Video, Image as ImageIcon, X, Pencil } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -33,6 +33,16 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [editData, setEditData] = useState({
+    full_name: user?.full_name || "",
+    phone_number: user?.phone_number || "",
+    username: user?.username || "",
+    email: user?.email || "",
+    bio: user?.bio || "",
+    avatar: null as File | null,
+  });
+  const [editLoading, setEditLoading] = useState(false);
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -188,9 +198,9 @@ export default function ProfilePage() {
     };
 
     return (
-      <div key={post.post_id} className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
+      <div key={post.post_id} className="bg-white text-black p-4 shadow-md w-full rounded-lg border ">
         <div className="flex items-center space-x-3">
-          <img src={user?.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
+          <img src={user?.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
           <div>
             <div className="flex items-center gap-2">
               <p className="font-semibold">{user?.full_name || "Người dùng"}</p>
@@ -242,7 +252,7 @@ export default function ProfilePage() {
 
               <div className="p-4">
                 <div className="flex space-x-3">
-                  <img src={user?.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
+                  <img src={user?.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
                   <div className="flex-1">
                     <p className="font-semibold text-sm">{user?.full_name || "Người dùng"} <span className="text-gray-500 text-xs">• {post.created_at ? new Date(post.created_at).toLocaleDateString('vi-VN') : ''}</span></p>
                     <p className="text-sm text-gray-800">{post.content}</p>
@@ -263,7 +273,7 @@ export default function ProfilePage() {
                     />
                     <div className="flex space-x-3 text-gray-500 mt-2 items-center">
                       <label>
-                        <MoreHorizontal size={18} className="cursor-pointer hover:text-black" />
+                        <ImageIcon size={18} className="cursor-pointer hover:text-black" />
                         <input
                           type="file"
                           accept="image/*"
@@ -376,6 +386,39 @@ export default function ProfilePage() {
     }
   };
 
+  const handleEditProfile = async () => {
+    setEditLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append("full_name", editData.full_name);
+      formData.append("phone_number", editData.phone_number);
+      formData.append("username", editData.username);
+      formData.append("email", editData.email);
+      formData.append("bio", editData.bio);
+      if (editData.avatar) {
+        formData.append("avatar", editData.avatar);
+      }
+
+      const res = await fetch(`http://127.0.0.1:8000/users/${userId}/update`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Cập nhật thất bại");
+      const data = await res.json();
+      setUser(data.user);
+      setShowEditProfile(false);
+    } catch (error) {
+      alert("Có lỗi xảy ra khi cập nhật hồ sơ!");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   if (!loading && !user) {
     notFound()
   }
@@ -387,10 +430,12 @@ export default function ProfilePage() {
         <div className="bg-white rounded-2xl shadow-md p-4 space-y-4">
           {/* Profile header */}
           <div className="flex items-center space-x-4">
-            <img src={user?.avatar || "https://placehold.co/100x100"} alt="Avatar" className="w-20 h-20 rounded-full" />
+            <img src={user?.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/100x100"} alt="Avatar" className="w-20 h-20 rounded-full" />
             <div>
               <h2 className="text-xl font-bold">{user?.full_name || "username"}</h2>
               <p className="text-gray-500">@{user?.username || "username"}</p>
+              <p className="text-gray-500">{user?.bio || "Bio"}</p>
+              <Pencil size={18} className="cursor-pointer hover:text-blue-500" onClick={() => setShowEditProfile(true)} />
               <div className="flex space-x-4 mt-2">
                 <div>
                   <span className="font-bold">{Array.isArray(posts) ? posts.length : 0}</span> bài viết
@@ -440,7 +485,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Content */}
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-auto max-h-[calc(100vh-260px)]">
             {Array.isArray(posts) && posts.length > 0 ? (
               posts.map((post) => (
                 <PostCard key={post.post_id} post={post} onActionDone={fetchProfile} />
@@ -451,6 +496,87 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      {showEditProfile && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white p-6 rounded-lg w-[400px]">
+            <h2 className="text-lg font-bold mb-4">Chỉnh sửa hồ sơ</h2>
+            <input
+              className="w-full mb-2 p-2 border rounded"
+              placeholder="Họ tên"
+              value={editData.full_name}
+              onChange={e => setEditData({ ...editData, full_name: e.target.value })}
+            />
+            <input
+              className="w-full mb-2 p-2 border rounded"
+              placeholder="Số điện thoại"
+              value={editData.phone_number}
+              onChange={e => setEditData({ ...editData, phone_number: e.target.value })}
+            />
+            <input
+              className="w-full mb-2 p-2 border rounded"
+              placeholder="Username"
+              value={editData.username}
+              onChange={e => setEditData({ ...editData, username: e.target.value })}
+            />
+            <input
+              className="w-full mb-2 p-2 border rounded"
+              placeholder="Email"
+              value={editData.email}
+              onChange={e => setEditData({ ...editData, email: e.target.value })}
+            />
+            <textarea
+              className="w-full mb-2 p-2 border rounded"
+              placeholder="Bio"
+              value={editData.bio}
+              onChange={e => setEditData({ ...editData, bio: e.target.value })}
+            />
+            <div className="flex items-center gap-2 mb-2 p-2 border rounded cursor-pointer">
+              <ImageIcon size={18} className="cursor-pointer hover:text-black" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                id="avatar-upload"
+                onChange={e => setEditData({ ...editData, avatar: e.target.files?.[0] || null })}
+              />
+              <label htmlFor="avatar-upload" className="cursor-pointer">
+                Chọn ảnh đại diện
+              </label>
+            {editData.avatar && (
+              <div className="relative w-10 h-10 ml-2">
+                <img
+                  src={URL.createObjectURL(editData.avatar)}
+                  alt="Avatar preview"
+                  className="w-10 h-10 object-cover rounded-full"
+                />
+                <button
+                  type="button"
+                  className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
+                  onClick={() => setEditData({ ...editData, avatar: null })}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => setShowEditProfile(false)}
+              >
+                Hủy
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={handleEditProfile}
+                disabled={editLoading}
+              >
+                {editLoading ? "Đang lưu..." : "Lưu"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

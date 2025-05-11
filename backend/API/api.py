@@ -346,26 +346,63 @@ def unfollow_user(user_id: str, current_user_id: str = Depends(get_current_user)
 def get_user_posts(user_id: str):
     posts = Manager.get_user_posts(user_id)
     return {"posts": posts}
-    
+
 @app.put("/users/{user_id}/update")
 async def update_user(
     user_id: str,
-    full_name: str = Form(...),
-    phone_number: str = Form(...),
-    username: str = Form(...),
-    email: str = Form(...),
-    bio: str = Form(...),
+    current_user_id: str = Depends(get_current_user),
+    full_name: str = Form(None),
+    phone_number: str = Form(None), 
+    username: str = Form(None),
+    email: str = Form(None),
+    bio: str = Form(None),
+    avatar: UploadFile = File(None)
 ):
+    # Kiểm tra quyền cập nhật
+    if current_user_id != user_id:
+        raise HTTPException(status_code=403, detail="Không có quyền cập nhật thông tin người dùng khác")
+
+    # Get current user data
+    current_user = Manager.get_user(user_id)
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
+    
+    # Kiểm tra username và email có bị trùng không
+    if username and username != current_user["username"]:
+        existing_user = Manager.get_user_by_username(username)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Username đã tồn tại")
+            
+    if email and email != current_user["email"]:
+        existing_user = Manager.get_user_by_email(email) 
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email đã tồn tại")
+
+    # Tạo dict chứa dữ liệu cập nhật
     user_data = {
-        "full_name": full_name,
-        "phone_number": phone_number,
-        "username": username,
-        "email": email,
-        "bio": bio
+        "full_name": full_name if full_name is not None else current_user["full_name"],
+        "phone_number": phone_number if phone_number is not None else current_user["phone_number"],
+        "username": username if username is not None else current_user["username"],
+        "email": email if email is not None else current_user["email"],
+        "bio": bio if bio is not None else current_user["bio"],
+        "avatar": [["avatar"]]  # Giữ nguyên avatar cũ nếu không có avatar mới
     }
-    Manager.update_user(user_id, user_data)
-    user = Manager.get_user(user_id)
-    return {"user": user}
+
+    try:
+        if avatar:
+            # Xử lý lưu file avatar vào GridFS
+            contents = await avatar.read()
+            avatar_id = Manager.save_file_to_gridfs(contents, avatar.filename, avatar.content_type)
+            user_data["avatar"] = str(avatar_id)
+
+        # Cập nhật thông tin user
+        Manager.update_user(user_id, user_data)
+        updated_user = Manager.get_user(user_id)
+        
+        return {"user": updated_user}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi khi cập nhật thông tin: {str(e)}")
 # ------------------------
 # Notification
 # ------------------------

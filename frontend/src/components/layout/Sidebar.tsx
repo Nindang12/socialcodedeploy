@@ -10,22 +10,24 @@ export default function Sidebar() {
 
     // Get token and set up storage listener
     useEffect(() => {
-        const handleStorage = () => {
-            const storedToken = localStorage.getItem("token");
-            setToken(storedToken);
-            
-            try {
-                const user = JSON.parse(localStorage.getItem("currentUser") || "null");
-                setCurrentUser(user);
-            } catch (error) {
-                console.error("Error parsing user from storage:", error);
-                setCurrentUser(null);
-            }
-        };
+        if (typeof window !== "undefined") {
+            const handleStorage = () => {
+                const storedToken = localStorage.getItem("token");
+                setToken(storedToken);
+                
+                try {
+                    const user = JSON.parse(localStorage.getItem("currentUser") || "null");
+                    setCurrentUser(user);
+                } catch (error) {
+                    console.error("Error parsing user from storage:", error);
+                    setCurrentUser(null);
+                }
+            };
 
-        handleStorage();
-        window.addEventListener("storage", handleStorage);
-        return () => window.removeEventListener("storage", handleStorage);
+            handleStorage();
+            window.addEventListener("storage", handleStorage);
+            return () => window.removeEventListener("storage", handleStorage);
+        }
     }, []);
 
     // Fetch user data when token changes

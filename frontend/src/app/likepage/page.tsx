@@ -54,7 +54,6 @@ export default function LikePage() {
         const response = await axios.get('http://127.0.0.1:8000/posts', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        console.log("Raw response:", response.data);
 
         // Lọc các bài viết đã like và build lại object post giống trang chủ
         const posts = Array.isArray(response.data) ? response.data : (response.data.results || response.data.posts || []);
@@ -92,10 +91,6 @@ export default function LikePage() {
             created_at: post.created_at,
           };
         }));
-
-        console.log("Current user ID:", currentUser.user_id);
-        console.log("Found liked posts:", likedPostsWithUser.length);
-        console.log("Liked posts data:", likedPostsWithUser);
 
         setLikedPosts(likedPostsWithUser);
       } catch (error) {
@@ -271,7 +266,7 @@ function Post({
     <div className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
       <div className="flex justify-between">
         <div className="flex items-center space-x-3">
-          <img src={avatar || "/default-avatar.png"} alt="Avatar" className="w-10 h-10 rounded-full" />
+          <img src={avatar ? `http://127.0.0.1:8000/media/${avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
           <div>
             <p className="font-semibold">{username || user_id}</p>
             <p className="text-sm text-gray-500">{time || (created_at ? formatTime(created_at) : "")}</p>

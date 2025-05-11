@@ -66,6 +66,7 @@ interface UserResponse {
   user: {
     username: string;
     user_id: string;
+    avatar?: string;
     followers?: string[];
     following?: string[];
   };
@@ -112,7 +113,7 @@ export default function Home() {
     }
   };
 
-  const [currentUser, setCurrentUser] = useState<{ username: string, user_id: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ username: string; user_id: string; avatar?: string } | null>(null);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -160,19 +161,17 @@ export default function Home() {
         const postsWithUsernames = await Promise.all(res.data.map(async (post) => {
           try {
             const userRes = await axios.get<UserResponse>(`http://127.0.0.1:8000/users/${post.user_id}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-              },
+              headers: { 'Authorization': `Bearer ${token}` },
             });
-
             const username = userRes.data.user?.username || `user_${post.user_id}`;
+            const avatarId = userRes.data.user?.avatar;
             const imageUrl = post.image_id ? `http://127.0.0.1:8000/media/${post.image_id}` : "";
             const videoUrl = post.video_id ? `http://127.0.0.1:8000/media/${post.video_id}` : "";
 
             return {
               ...post,
               time: formatTime(post.created_at),
-              avatar: `https://placehold.co/40x40?text=${post.user_id}`,
+              avatar: avatarId ? avatarId : `https://placehold.co/40x40?text=${post.user_id}`,
               username: username,
               image: imageUrl,
               video: videoUrl,
@@ -284,7 +283,11 @@ export default function Home() {
             className="flex items-center space-x-3 border-b pb-3"
             onClick={() => setShowUploadPost((prev) => !prev)}
           >
-            <img src="https://placehold.co/40" alt="Avatar" className="w-10 h-10 rounded-full" />
+              <img
+                src={currentUser?.avatar ? `http://127.0.0.1:8000/media/${currentUser.avatar}` : "https://placehold.co/40x40"}
+                alt="Avatar"
+                className="w-10 h-10 rounded-full"
+              />
             <div className="flex-1 flex gap-2">
               <input
                 type="text"
@@ -308,7 +311,11 @@ export default function Home() {
 
                 <div className="p-3 space-y-3">
                   <div className="flex items-start space-x-3">
-                    <img src="https://placehold.co/40" alt="Avatar" className="w-10 h-10 rounded-full" />
+                    <img
+                      src={currentUser?.avatar ? `http://127.0.0.1:8000/media/${currentUser.avatar}` : "https://placehold.co/40x40"}
+                      alt="Avatar"
+                      className="w-10 h-10 rounded-full"
+                    />
                     <div className="w-full">
                       <p className="text-sm font-semibold">
                         {currentUser?.username || 'Loading...'} <span className="text-gray-500">› Thêm chủ đề</span>
@@ -458,7 +465,7 @@ function Post({
   currentUser
 }: PostType & {
   setLocalPosts: React.Dispatch<React.SetStateAction<PostType[]>>;
-  currentUser: { username: string; user_id: string } | null;
+  currentUser: { username: string; user_id: string; avatar?: string } | null;
 }) {
   const [showComment, setShowComment] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -815,7 +822,11 @@ function Post({
       {/* Header */}
       <div className="flex justify-between relative">
         <div className="flex items-center space-x-3">
-          <img src={avatar} alt="Avatar" className="w-10 h-10 rounded-full" />
+          <img
+            src={avatar && !avatar.startsWith('http') ? `http://127.0.0.1:8000/media/${avatar}` : (avatar || `https://placehold.co/40x40?text=${username}`)}
+            alt="Avatar"
+            className="w-10 h-10 rounded-full"
+          />
           <div>
             <div className="flex items-center gap-2">
               <div>
@@ -938,12 +949,12 @@ function Post({
 
       {showComment && (
         <div 
-          className="fixed inset-0 flex items-center justify-center bg-black/50" 
+          className="fixed inset-0 flex items-center justify-center bg-black/50 z-50" 
           onClick={(e) => {
             e.stopPropagation(); 
           }}
         >
-          <div className="bg-white w-[500px] rounded-xl shadow-lg translate-x-10">
+          <div className="bg-white w-[500px] rounded-xl shadow-lg">
             {/* Header */}
             <div className="flex items-center justify-between p-3 border-b">
               <button className="text-gray-600 hover:text-black">
@@ -958,8 +969,8 @@ function Post({
             {/* Nội dung thread */}
             <div className="p-4">
               <div className="flex space-x-3">
-                <img
-                  src="https://placehold.co/40x40"
+                <img  
+                  src={avatar && !avatar.startsWith('http') ? `http://127.0.0.1:8000/media/${avatar}` : (avatar || `https://placehold.co/40x40?text=${username}`)}
                   alt="Avatar"
                   className="w-10 h-10 rounded-full"
                 />
@@ -974,7 +985,7 @@ function Post({
             <div className="p-4">
               <div className="flex space-x-3">
                 <img
-                  src="https://placehold.co/40x40"
+                  src={avatar && !avatar.startsWith('http') ? `http://127.0.0.1:8000/media/${avatar}` : (avatar || `https://placehold.co/40x40?text=${username}`)}
                   alt="Avatar"
                   className="w-10 h-10 rounded-full"
                 />

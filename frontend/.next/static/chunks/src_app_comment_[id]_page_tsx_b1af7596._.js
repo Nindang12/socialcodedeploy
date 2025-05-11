@@ -488,7 +488,7 @@ function CommentPage() {
                                     className: "flex items-center space-x-3",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                                            src: user?.avatar || "https://placehold.co/40x40",
+                                            src: user?.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/40x40",
                                             alt: "Avatar",
                                             className: "w-10 h-10 rounded-full"
                                         }, void 0, false, {
@@ -660,7 +660,7 @@ function CommentPage() {
                             className: "flex items-center space-x-3",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                                    src: "https://placehold.co/40x40",
+                                    src: currentUser?.avatar ? `http://127.0.0.1:8000/media/${currentUser.avatar}` : "https://placehold.co/40x40",
                                     alt: "Avatar",
                                     className: "w-10 h-10 rounded-full"
                                 }, void 0, false, {
@@ -958,7 +958,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                 className: "flex items-center gap-2 w-full",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                        src: commentUser?.avatar || "https://placehold.co/40x40",
+                        src: commentUser?.avatar ? `http://127.0.0.1:8000/media/${commentUser.avatar}` : "https://placehold.co/40x40",
                         alt: "Avatar",
                         className: "w-8 h-8 rounded-full"
                     }, void 0, false, {
@@ -1169,7 +1169,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                 className: "flex items-start space-x-2 mt-2 w-[90%]",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                        src: currentUser?.avatar || "https://placehold.co/32x32",
+                        src: currentUser?.avatar ? `http://127.0.0.1:8000/media/${currentUser.avatar}` : "https://placehold.co/32x32",
                         alt: "Avatar",
                         className: "w-8 h-8 rounded-full"
                     }, void 0, false, {

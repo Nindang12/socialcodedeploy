@@ -409,7 +409,7 @@ export default function CommentPage() {
           {/* Post content */}
           <div className="border-b pb-4">
             <div className="flex items-center space-x-3">
-              <img src={user?.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
+              <img src={user?.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
               <div>
                 <Link href={`/profile/${user?.user_id}`}>
                   <p className="text-sm font-semibold text-black hover:underline cursor-pointer">
@@ -477,7 +477,7 @@ export default function CommentPage() {
 
           {/* Comment input */}
           <div className="flex items-center space-x-3">
-            <img src="https://placehold.co/40x40" alt="Avatar" className="w-10 h-10 rounded-full" />
+            <img src={currentUser?.avatar ? `http://127.0.0.1:8000/media/${currentUser.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
             <input type="text" placeholder="Viết bình luận..." className="flex-1 p-2 border rounded-lg focus:outline-none" value={newComment} onChange={(e) => setNewComment(e.target.value)} />
             
             <div className="flex items-center gap-2">
@@ -612,7 +612,7 @@ function CommentItem({
       className="flex flex-col items-start mt-2 border-b pb-2 w-full"
     >
       <div className="flex items-center gap-2 w-full">
-        <img src={commentUser?.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-8 h-8 rounded-full" />
+        <img src={commentUser?.avatar ? `http://127.0.0.1:8000/media/${commentUser.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-8 h-8 rounded-full" />
         <span className="font-semibold text-sm">{commentUser?.username || "user"}</span>
         <span className="text-xs text-gray-400">
           {cmt.created_at ? formatTime(cmt.created_at) : "--"}
@@ -709,7 +709,7 @@ function CommentItem({
       {/* Input reply */}
       {showInputReply[cmt.comment_id] && (
         <div className="flex items-start space-x-2 mt-2 w-[90%]">
-          <img src={currentUser?.avatar || "https://placehold.co/32x32"} alt="Avatar" className="w-8 h-8 rounded-full" />
+          <img src={currentUser?.avatar ? `http://127.0.0.1:8000/media/${currentUser.avatar}` : "https://placehold.co/32x32"} alt="Avatar" className="w-8 h-8 rounded-full" />
           <input
             type="text"
             className="flex-1 p-2 border rounded-lg text-sm"

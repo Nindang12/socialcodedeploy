@@ -23,6 +23,7 @@ class GridFSConfig:
         # Create collections for metadata
         self.images = self.db["images"]
         self.videos = self.db["videos"]
+        self.avatars = self.db["avatars"]
 
     def upload_file(self, file_data, file_name, content_type, is_image=True):
         try:

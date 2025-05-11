@@ -115,5 +115,8 @@ class DAO_Manager:
     def get_user_posts(self, user_id: str):
         return self.post_dao.get_user_posts(user_id)
     
-    def update_user(self, user_id: str, user: User):
+    def update_user(self, user_id: str, user: dict):
         return self.user_dao.update_user(user_id, user)
+        
+    def save_file_to_gridfs(self, contents: bytes, filename: str, content_type: str):
+        return gridfs_client.upload_file(contents, filename, content_type)

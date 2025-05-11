@@ -208,20 +208,9 @@ function Sidebar() {
     const [token, setToken] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     // Get token and set up storage listener
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        const handleStorage = ()=>{
-            const storedToken = localStorage.getItem("token");
-            setToken(storedToken);
-            try {
-                const user = JSON.parse(localStorage.getItem("currentUser") || "null");
-                setCurrentUser(user);
-            } catch (error) {
-                console.error("Error parsing user from storage:", error);
-                setCurrentUser(null);
-            }
-        };
-        handleStorage();
-        window.addEventListener("storage", handleStorage);
-        return ()=>window.removeEventListener("storage", handleStorage);
+        if ("TURBOPACK compile-time falsy", 0) {
+            "TURBOPACK unreachable";
+        }
     }, []);
     // Fetch user data when token changes
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
@@ -257,7 +246,7 @@ function Sidebar() {
                     alt: "logo"
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Sidebar.tsx",
-                    lineNumber: 57,
+                    lineNumber: 59,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -272,12 +261,12 @@ function Sidebar() {
                                 alt: "home"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/Sidebar.tsx",
-                                lineNumber: 60,
+                                lineNumber: 62,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/Sidebar.tsx",
-                            lineNumber: 59,
+                            lineNumber: 61,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -289,12 +278,12 @@ function Sidebar() {
                                 alt: "search"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/Sidebar.tsx",
-                                lineNumber: 63,
+                                lineNumber: 65,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/Sidebar.tsx",
-                            lineNumber: 62,
+                            lineNumber: 64,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -306,12 +295,12 @@ function Sidebar() {
                                 alt: "heart"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/Sidebar.tsx",
-                                lineNumber: 66,
+                                lineNumber: 68,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/Sidebar.tsx",
-                            lineNumber: 65,
+                            lineNumber: 67,
                             columnNumber: 21
                         }, this),
                         currentUser?.user_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -323,41 +312,41 @@ function Sidebar() {
                                 alt: "profile"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/Sidebar.tsx",
-                                lineNumber: 70,
+                                lineNumber: 72,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/Sidebar.tsx",
-                            lineNumber: 69,
+                            lineNumber: 71,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/layout/Sidebar.tsx",
-                    lineNumber: 58,
+                    lineNumber: 60,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "pb-10",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ButtonOption$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                         fileName: "[project]/src/components/layout/Sidebar.tsx",
-                        lineNumber: 75,
+                        lineNumber: 77,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Sidebar.tsx",
-                    lineNumber: 74,
+                    lineNumber: 76,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/layout/Sidebar.tsx",
-            lineNumber: 56,
+            lineNumber: 58,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/layout/Sidebar.tsx",
-        lineNumber: 55,
+        lineNumber: 57,
         columnNumber: 9
     }, this);
 }

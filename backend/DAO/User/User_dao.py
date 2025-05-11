@@ -37,14 +37,45 @@ class User_dao:
             return user
         return None                                                                                                                                                                                                                                                                                                                                             
     def update_user(self, user_id: str, user: dict):
-        user_data = {
-            "full_name": user.get("full_name"),
-            "phone_number": user.get("phone_number"),
-            "username": user.get("username"),
-            "email": user.get("email"),
-            "bio": user.get("bio")
-        }
-        return self.collection.update_one({"user_id": user_id}, {"$set": user_data})
+        # Validate user exists
+        existing_user = self.get_user(user_id)
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Build update data, only including fields that were provided
+        user_data = {}
+        if user.get("full_name"):
+            user_data["full_name"] = user.get("full_name")
+        if user.get("phone_number"):
+            # Check if phone number is already taken by another user
+            existing = self.get_user_by_phone_number(user.get("phone_number"))
+            if existing and existing["user_id"] != user_id:
+                raise HTTPException(status_code=400, detail="Phone number already in use")
+            user_data["phone_number"] = user.get("phone_number")
+        if user.get("username"):
+            # Check if username is already taken
+            existing = self.get_user_by_username(user.get("username")) 
+            if existing and existing["user_id"] != user_id:
+                raise HTTPException(status_code=400, detail="Username already taken")
+            user_data["username"] = user.get("username")
+        if user.get("email"):
+            # Check if email is already taken
+            existing = self.get_user_by_email(user.get("email"))
+            if existing and existing["user_id"] != user_id:
+                raise HTTPException(status_code=400, detail="Email already in use")
+            user_data["email"] = user.get("email")
+        if user.get("avatar") is not None:
+            user_data["avatar"] = user.get("avatar")
+        if user.get("bio") is not None:
+            user_data["bio"] = user.get("bio")
+
+        # Only update if there are changes
+        if user_data:
+            return self.collection.update_one(
+                {"user_id": user_id}, 
+                {"$set": user_data}
+            )
+        return None
     def get_user_by_full_name(self, full_name: str):
         return self.collection.find_one({"full_name": full_name})
     def get_user_by_phone_number(self, phone_number: str):

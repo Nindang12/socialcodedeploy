@@ -58,7 +58,6 @@ function LikePage() {
                                 Authorization: `Bearer ${token}`
                             }
                         });
-                        console.log("Raw response:", response.data);
                         // Lọc các bài viết đã like và build lại object post giống trang chủ
                         const posts = Array.isArray(response.data) ? response.data : response.data.results || response.data.posts || [];
                         const liked = posts.filter({
@@ -105,9 +104,6 @@ function LikePage() {
                                 };
                             }
                         }["LikePage.useEffect.fetchLikedPosts"]));
-                        console.log("Current user ID:", currentUser.user_id);
-                        console.log("Found liked posts:", likedPostsWithUser.length);
-                        console.log("Liked posts data:", likedPostsWithUser);
                         setLikedPosts(likedPostsWithUser);
                     } catch (error) {
                         console.error("Error fetching liked posts:", error);
@@ -129,7 +125,7 @@ function LikePage() {
                 children: "Bài viết đã thích"
             }, void 0, false, {
                 fileName: "[project]/src/app/likepage/page.tsx",
-                lineNumber: 113,
+                lineNumber: 108,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -143,14 +139,14 @@ function LikePage() {
                             children: "Đang tải..."
                         }, void 0, false, {
                             fileName: "[project]/src/app/likepage/page.tsx",
-                            lineNumber: 118,
+                            lineNumber: 113,
                             columnNumber: 15
                         }, this) : likedPosts.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "text-center",
                             children: "Bạn chưa thích bài viết nào"
                         }, void 0, false, {
                             fileName: "[project]/src/app/likepage/page.tsx",
-                            lineNumber: 120,
+                            lineNumber: 115,
                             columnNumber: 15
                         }, this) : likedPosts.map((post)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Post, {
                                 ...post,
@@ -158,28 +154,28 @@ function LikePage() {
                                 currentUser: JSON.parse(localStorage.getItem('currentUser') || '{}')
                             }, post._id || post.post_id, false, {
                                 fileName: "[project]/src/app/likepage/page.tsx",
-                                lineNumber: 125,
+                                lineNumber: 120,
                                 columnNumber: 17
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/app/likepage/page.tsx",
-                        lineNumber: 116,
+                        lineNumber: 111,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/likepage/page.tsx",
-                    lineNumber: 115,
+                    lineNumber: 110,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/likepage/page.tsx",
-                lineNumber: 114,
+                lineNumber: 109,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/likepage/page.tsx",
-        lineNumber: 112,
+        lineNumber: 107,
         columnNumber: 5
     }, this);
 }
@@ -303,12 +299,12 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                     className: "flex items-center space-x-3",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                            src: avatar || "/default-avatar.png",
+                            src: avatar ? `http://127.0.0.1:8000/media/${avatar}` : "https://placehold.co/40x40",
                             alt: "Avatar",
                             className: "w-10 h-10 rounded-full"
                         }, void 0, false, {
                             fileName: "[project]/src/app/likepage/page.tsx",
-                            lineNumber: 274,
+                            lineNumber: 269,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -318,7 +314,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                     children: username || user_id
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/likepage/page.tsx",
-                                    lineNumber: 276,
+                                    lineNumber: 271,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -326,24 +322,24 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                                     children: time || (created_at ? formatTime(created_at) : "")
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/likepage/page.tsx",
-                                    lineNumber: 277,
+                                    lineNumber: 272,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/likepage/page.tsx",
-                            lineNumber: 275,
+                            lineNumber: 270,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/likepage/page.tsx",
-                    lineNumber: 273,
+                    lineNumber: 268,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/likepage/page.tsx",
-                lineNumber: 272,
+                lineNumber: 267,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -354,7 +350,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                         children: content
                     }, void 0, false, {
                         fileName: "[project]/src/app/likepage/page.tsx",
-                        lineNumber: 283,
+                        lineNumber: 278,
                         columnNumber: 9
                     }, this),
                     image && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
@@ -363,7 +359,7 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                         className: "mt-2 rounded-lg"
                     }, void 0, false, {
                         fileName: "[project]/src/app/likepage/page.tsx",
-                        lineNumber: 284,
+                        lineNumber: 279,
                         columnNumber: 19
                     }, this),
                     video && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
@@ -372,13 +368,13 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                         className: "mt-2 rounded-lg w-full"
                     }, void 0, false, {
                         fileName: "[project]/src/app/likepage/page.tsx",
-                        lineNumber: 285,
+                        lineNumber: 280,
                         columnNumber: 19
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/likepage/page.tsx",
-                lineNumber: 282,
+                lineNumber: 277,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -390,14 +386,14 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                             className: liked ? "text-red-500" : "text-gray-500"
                         }, void 0, false, {
                             fileName: "[project]/src/app/likepage/page.tsx",
-                            lineNumber: 290,
+                            lineNumber: 285,
                             columnNumber: 17
                         }, void 0),
                         count: likeCount,
                         onClick: handleLike
                     }, void 0, false, {
                         fileName: "[project]/src/app/likepage/page.tsx",
-                        lineNumber: 289,
+                        lineNumber: 284,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -405,14 +401,14 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                             size: 18
                         }, void 0, false, {
                             fileName: "[project]/src/app/likepage/page.tsx",
-                            lineNumber: 295,
+                            lineNumber: 290,
                             columnNumber: 17
                         }, void 0),
                         count: commentCount,
                         onClick: ()=>setShowComment((prev)=>!prev)
                     }, void 0, false, {
                         fileName: "[project]/src/app/likepage/page.tsx",
-                        lineNumber: 294,
+                        lineNumber: 289,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -421,26 +417,26 @@ function Post({ post_id, user_id, avatar, username, time, content, image, video,
                             className: reposted ? "text-green-500" : "text-gray-500"
                         }, void 0, false, {
                             fileName: "[project]/src/app/likepage/page.tsx",
-                            lineNumber: 300,
+                            lineNumber: 295,
                             columnNumber: 17
                         }, void 0),
                         count: repostCount,
                         onClick: handleRepost
                     }, void 0, false, {
                         fileName: "[project]/src/app/likepage/page.tsx",
-                        lineNumber: 299,
+                        lineNumber: 294,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/likepage/page.tsx",
-                lineNumber: 288,
+                lineNumber: 283,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/likepage/page.tsx",
-        lineNumber: 271,
+        lineNumber: 266,
         columnNumber: 5
     }, this);
 }
@@ -463,13 +459,13 @@ function ActionButton({ icon, count, onClick }) {
                 children: count
             }, void 0, false, {
                 fileName: "[project]/src/app/likepage/page.tsx",
-                lineNumber: 327,
+                lineNumber: 322,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/likepage/page.tsx",
-        lineNumber: 319,
+        lineNumber: 314,
         columnNumber: 5
     }, this);
 }

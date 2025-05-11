@@ -281,7 +281,7 @@ export default function SearchPage() {
           </div>
 
           {/* Search results */}
-          <div className="space-y-4 min-h-[100px]">
+          <div className="space-y-4 min-h-[100px] overflow-y-auto max-h-[560px]">
             {loading && <div className="text-gray-400">Đang tìm kiếm...</div>}
             {error && <div className="text-red-500 text-sm">{error}</div>}
             {!loading && !error && results.length === 0 && <div className="text-gray-400 text-sm">Không có kết quả.</div>}
@@ -299,7 +299,7 @@ export default function SearchPage() {
                   className="bg-white text-black p-4 shadow-md w-full rounded-lg border hover:bg-gray-50 cursor-pointer mb-2 flex gap-3"
                   onClick={() => router.push(`/comment/${post.post_id}`)}
                 >
-                  <img src={user.avatar || "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
+                  <img src={user.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold">{user.username || "user"}</span>
