@@ -36,7 +36,15 @@ class User_dao:
             user["_id"] = str(user["_id"])
             return user
         return None                                                                                                                                                                                                                                                                                                                                             
-
+    def update_user(self, user_id: str, user: dict):
+        user_data = {
+            "full_name": user.get("full_name"),
+            "phone_number": user.get("phone_number"),
+            "username": user.get("username"),
+            "email": user.get("email"),
+            "bio": user.get("bio")
+        }
+        return self.collection.update_one({"user_id": user_id}, {"$set": user_data})
     def get_user_by_full_name(self, full_name: str):
         return self.collection.find_one({"full_name": full_name})
     def get_user_by_phone_number(self, phone_number: str):

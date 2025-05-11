@@ -2,7 +2,7 @@ from fastapi import UploadFile
 
 class User:
     
-    def __init__(self, user_id: str, full_name: str, phone_number: str, username: str, email: str, password: str):
+    def __init__(self, user_id: str, full_name: str, phone_number: str, username: str, email: str, password: str, bio: str):
         self.user_id = user_id
         self.full_name = full_name
         self.phone_number = phone_number
@@ -17,7 +17,8 @@ class User:
             "phone_number": self.phone_number,
             "username": self.username,
             "email": self.email,
-            "password": self.password
+            "password": self.password,
+            "bio": self.bio
         }
     def get_email(self):
         return self.email

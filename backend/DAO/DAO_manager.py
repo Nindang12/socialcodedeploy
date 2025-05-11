@@ -114,3 +114,6 @@ class DAO_Manager:
 
     def get_user_posts(self, user_id: str):
         return self.post_dao.get_user_posts(user_id)
+    
+    def update_user(self, user_id: str, user: User):
+        return self.user_dao.update_user(user_id, user)

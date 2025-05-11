@@ -31,6 +31,12 @@ class Comment(BaseModel):
     content: str
     parent_comment_id: Optional[str] = None
 
+class UserUpdate(BaseModel):
+    full_name: str
+    phone_number: str
+    username: str
+    email: str
+    bio: str
 # create separate user
 # class Userlogin(BaseModel):
 #     phone_number: optional[str]
@@ -340,7 +346,26 @@ def unfollow_user(user_id: str, current_user_id: str = Depends(get_current_user)
 def get_user_posts(user_id: str):
     posts = Manager.get_user_posts(user_id)
     return {"posts": posts}
-
+    
+@app.put("/users/{user_id}/update")
+async def update_user(
+    user_id: str,
+    full_name: str = Form(...),
+    phone_number: str = Form(...),
+    username: str = Form(...),
+    email: str = Form(...),
+    bio: str = Form(...),
+):
+    user_data = {
+        "full_name": full_name,
+        "phone_number": phone_number,
+        "username": username,
+        "email": email,
+        "bio": bio
+    }
+    Manager.update_user(user_id, user_data)
+    user = Manager.get_user(user_id)
+    return {"user": user}
 # ------------------------
 # Notification
 # ------------------------
