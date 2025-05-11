@@ -104,3 +104,5 @@ class DAO_Manager:
     def unfollow_user(self, current_user_id: str, target_user_id: str):
         return self.user_dao.unfollow_user(current_user_id, target_user_id)
 
+    def get_user_posts(self, user_id: str):
+        return self.post_dao.get_user_posts(user_id)

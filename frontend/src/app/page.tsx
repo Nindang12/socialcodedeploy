@@ -57,6 +57,8 @@ interface PostResponse {
   comments: number;
   reposts: number;
   saves: number;
+  liked_by?: string[];
+  reposted_by?: string[];
 }
 
 interface UserResponse {
@@ -67,13 +69,30 @@ interface UserResponse {
   };
 }
 
+interface PostType {
+  post_id: number;
+  user_id: number;
+  avatar: string;
+  username: string;
+  time: string;
+  content: string;
+  image: string;
+  video?: string;
+  likes: number;
+  comments: number;
+  reposts: number;
+  saves: number;
+  liked_by?: string[];
+  reposted_by?: string[];
+}
+
 export default function Home() {
   const router = useRouter();
   const [showUploadPost, setShowUploadPost] = useState(false);
   const [content, setContent] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
-  const [localPosts, setLocalPosts] = useState(posts);
+  const [localPosts, setLocalPosts] = useState<PostType[]>(posts);
 
   const formatTime = (createdAt: string) => {
     const now = new Date();
@@ -155,6 +174,8 @@ export default function Home() {
               username: username,
               image: imageUrl,
               video: videoUrl,
+              liked_by: post.liked_by || [],
+              reposted_by: post.reposted_by || [],
             };
           } catch (error) {
             console.error('Error fetching user:', error);
@@ -165,11 +186,13 @@ export default function Home() {
               username: `user_${post.user_id}`,
               image: "",
               video: "",
+              liked_by: [],
+              reposted_by: [],
             };
           }
         }));
     
-        setLocalPosts(postsWithUsernames as typeof posts[0][]);
+        setLocalPosts(postsWithUsernames as PostType[]);
       } catch (err: any) {
         console.error("Error fetching posts:", err);
         if (err.response?.status === 401) {
@@ -232,6 +255,8 @@ export default function Home() {
         comments: typeof response.data.comments === "number" ? response.data.comments : 0,
         reposts: typeof response.data.reposts === "number" ? response.data.reposts : 0,
         saves: typeof response.data.saves === "number" ? response.data.saves : 0,
+        liked_by: [],
+        reposted_by: [],
       };
 
       setLocalPosts((prevPosts) => [newPost, ...prevPosts]);
@@ -425,11 +450,12 @@ function Post({
   comments,
   reposts,
   saves,
+  liked_by = [],
+  reposted_by = [],
   setLocalPosts,
   currentUser
-}: typeof posts[0] & {
-  video?: string;
-  setLocalPosts: React.Dispatch<React.SetStateAction<typeof posts[0][]>>;
+}: PostType & {
+  setLocalPosts: React.Dispatch<React.SetStateAction<PostType[]>>;
   currentUser: { username: string; user_id: string } | null;
 }) {
   const [showComment, setShowComment] = useState(false);
@@ -437,7 +463,6 @@ function Post({
   const [likeCount, setLikeCount] = useState(likes);
   const [reposted, setReposted] = useState(false);
   const [repostCount, setRepostCount] = useState(reposts);
-  
   const [newComment, setNewComment] = useState("");
   const [commentCount, setCommentCount] = useState(comments);
   const [showOptions, setShowOptions] = useState(false);
@@ -445,23 +470,19 @@ function Post({
   const [editedContent, setEditedContent] = useState(content);
   const [isFollowing, setIsFollowing] = useState(false);
   const router = useRouter();
-  
-  const token = localStorage.getItem('token');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const [errorMsg, setErrorMsg] = useState("");
   const optionRef = useRef<HTMLDivElement>(null);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
-
-  // Thêm state cho ảnh/video khi comment
   const [commentImage, setCommentImage] = useState<File | null>(null);
   const [commentVideo, setCommentVideo] = useState<File | null>(null);
 
   useEffect(() => {
-    console.log("useEffect run, currentUser:", currentUser);
     if (!post_id || !token || !currentUser) return;
 
     const fetchPostAndUser = async () => {
       try {
-        // Fetch post
+        // Fetch post để lấy trạng thái like chính xác
         const postRes = await fetch(`http://127.0.0.1:8000/posts/${post_id}`, {
           headers: { 'Authorization': `Bearer ${token}` },
           credentials: 'include',
@@ -476,9 +497,6 @@ function Post({
             .includes(String(currentUser.user_id).trim());
           setLiked(userHasLiked);
           setLikeCount(postData.likes);
-        } else {
-          setLiked(false);
-          setLikeCount(postData?.likes ?? 0);
         }
 
         // Kiểm tra reposted
@@ -489,30 +507,18 @@ function Post({
           setReposted(userHasReposted);
           setRepostCount(postData.reposts);
         }
-
-        // Fetch user info of post's author
-        const userRes = await fetch(`http://127.0.0.1:8000/users/${postData.user_id}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-        if (!userRes.ok) return;
-        const userData = await userRes.json();
-        const followers = userData.user?.followers || [];
-        const isUserFollowing = followers
-          .map((id: string) => String(id).trim())
-          .includes(String(currentUser.user_id).trim());
-        setIsFollowing(isUserFollowing);
       } catch (error) {
-        console.error("Failed to fetch post or user:", error);
+        console.error("Failed to fetch post:", error);
       }
     };
 
     fetchPostAndUser();
   }, [post_id, token, currentUser]);
-  
-  
+
   const handleLike = async () => {
     try {
-      const token = localStorage.getItem('token');
+      if (!token || !currentUser) return;
+
       const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/like`, {
         method: 'POST',
         headers: {
@@ -524,7 +530,7 @@ function Post({
       if (!response.ok) throw new Error('Failed to like post');
       const data = await response.json();
 
-      if (data && data.liked_by && currentUser) {
+      if (data && data.liked_by) {
         const userHasLiked = data.liked_by
           .map((id: string) => String(id).trim())
           .includes(String(currentUser.user_id).trim());
@@ -640,7 +646,7 @@ function Post({
       if (response.ok) {
         setErrorMsg("");
         console.log('Post deleted successfully');
-        setLocalPosts((prevPosts: typeof posts[0][]) => prevPosts.filter((post: typeof posts[0]) => post.post_id !== post_id));
+        setLocalPosts((prevPosts: PostType[]) => prevPosts.filter((post: PostType) => post.post_id !== post_id));
       } else {
         const data = await response.json();
         if (data.detail) {

@@ -3,10 +3,20 @@ import { useEffect, useId, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import ButtonOption from "../ButtonOption"
+import { useParams } from "next/navigation"
 
 export default function Sidebar(){
-    const userId = "current-user-id" // Replace this with actual user ID from your auth system
+    const [currentUser, setCurrentUser] = useState<any>(null);
+    const params = useParams();
+    const userId = params.userId as string;
     
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+            setCurrentUser(user);
+        }
+    }, []);
+
     return(
         <div>
             <div className="flex flex-col justify-between py-5 md:w-20 md:h-screen items-center bg-zinc-50 w-screen h-20">
@@ -18,12 +28,12 @@ export default function Sidebar(){
                     <Link href={"/search"} className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={22} src="/assets/search.svg" alt="search" />
                     </Link>
-                    <Link href={"/activity"} className="hover:bg-slate-200 p-3 rounded-lg relative cursor-pointer">
+                    <Link href={"/likepage"} className="hover:bg-slate-200 p-3 rounded-lg relative cursor-pointer">
                         <img width={22} src="/assets/heart.svg" alt="heart" />
                     </Link>
                     
                     
-                        <Link href={`/profile/${userId}`} className="hover:bg-slate-200 p-3 rounded-lg">
+                        <Link href={`/profile/${currentUser?.user_id}`} className="hover:bg-slate-200 p-3 rounded-lg">
                             <img width={20} src="/assets/profile.svg" alt="profile" />
                         </Link>
                     

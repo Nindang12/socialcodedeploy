@@ -149,6 +149,17 @@ class Post_dao:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to get post by id: {str(e)}")
     
+    def get_user_posts(self, user_id: str):
+        try:
+            posts = self.collection.find({"user_id": user_id})
+            result = []
+            for post in posts:
+                if "_id" in post:
+                    post["_id"] = str(post["_id"])
+                result.append(post)
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to get user posts: {str(e)}")
     def get_posts(self):
         try:
             posts = self.collection.find()
