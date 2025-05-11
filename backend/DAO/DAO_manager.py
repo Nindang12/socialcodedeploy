@@ -49,6 +49,7 @@ class DAO_Manager:
     def get_user_by_full_name(self, full_name: str):
         return self.user_dao.get_user_by_full_name(full_name)
     
+    # `identifier` can be either username or email, validate appropriately
     def authenticate_user(self, phone_number: str, email: str, username: str, password: str):
         return self.user_dao.authenticate_user(phone_number, email, username, password)
     # Post DAO
