@@ -512,6 +512,7 @@ function Post({
   
   const handleLike = async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/like`, {
         method: 'POST',
         headers: {
@@ -520,19 +521,16 @@ function Post({
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to like post');
-      }
-
+      if (!response.ok) throw new Error('Failed to like post');
       const data = await response.json();
-      
-      // Toggle like status
-      setLiked(!liked);
-      setLikeCount(prev => liked ? prev - 1 : prev + 1);
 
-      console.log("API response after follow:", data);
-      console.log("currentUser.user_id:", currentUser?.user_id);
-
+      if (data && data.liked_by && currentUser) {
+        const userHasLiked = data.liked_by
+          .map((id: string) => String(id).trim())
+          .includes(String(currentUser.user_id).trim());
+        setLiked(userHasLiked);
+        setLikeCount(data.likes ?? 0);
+      }
     } catch (error) {
       console.error('Error liking post:', error);
     }
@@ -540,25 +538,24 @@ function Post({
 
   const handleRepost = async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`http://127.0.0.1:8000/posts/${post_id}/repost`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', 
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to repost');
-      }
-
+      if (!response.ok) throw new Error('Failed to repost');
       const data = await response.json();
-      if (data && Array.isArray(data.reposted_by)) {
+
+      if (data && data.reposted_by && currentUser) {
         const userHasReposted = data.reposted_by
           .map((id: string) => String(id).trim())
-          .includes(String(currentUser?.user_id).trim());
+          .includes(String(currentUser.user_id).trim());
         setReposted(userHasReposted);
-        setRepostCount(data.reposts);
+        setRepostCount(data.reposts ?? 0);
       }
     } catch (error) {
       console.error('Error reposting:', error);
