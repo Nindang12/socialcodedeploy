@@ -34,11 +34,11 @@ export default function CommentPage() {
   const [commentVideo, setCommentVideo] = useState<File | null>(null);
   const [showMedia, setShowMedia] = useState<{ [key: string]: boolean }>({});
   const [replyImages, setReplyImages] = useState<{ [key: string]: File | null }>({});
-  const [replyVideo, setReplyVideo] = useState<{ [key: string]: File | null }>({});
+  const [replyVideos, setReplyVideos] = useState<{ [key: string]: File | null }>({});
   const [commentError, setCommentError] = useState("");
 
   const handleComment = async () => {
-    if (!newComment.trim() && !commentImage && !commentVideo) {
+    if (!newComment.trim()) {
       setCommentError('Vui lòng nhập nội dung bình luận!');
       return;
     }
@@ -63,8 +63,8 @@ export default function CommentPage() {
       if (!response.ok) throw new Error('Failed to comment');
       const data = await response.json();
       setCommentList(prev => [...prev, data]);
-      setCommentImage(null); // reset image
-      setCommentVideo(null); // reset video
+      setCommentImage(null);
+      setCommentVideo(null);
     } catch (error) {
       console.error('Error commenting:', error);
     }
@@ -178,8 +178,8 @@ export default function CommentPage() {
       if (replyImages[commentId]) {
         formData.append("image", replyImages[commentId]!);
       }
-      if (replyVideo[commentId]) {
-        formData.append("video", replyVideo[commentId]!);
+      if (replyVideos[commentId]) {
+        formData.append("video", replyVideos[commentId]!);
       }
       const response = await fetch(`http://127.0.0.1:8000/comments/${commentId}/reply`, {
         method: 'POST',
@@ -202,7 +202,7 @@ export default function CommentPage() {
         ...prev,
         [commentId]: null,
       }));
-      setReplyVideo(prev => ({
+      setReplyVideos(prev => ({
         ...prev,
         [commentId]: null,
       }));
@@ -439,7 +439,7 @@ export default function CommentPage() {
           </div>
 
           {/* Comments list */}
-          <div className="space-y-4 overflow-y-auto p-2 max-h-[470px]">
+          <div className="space-y-4 overflow-y-auto p-2 max-h-[440px]">
             {commentList.length === 0 && (
               <div className="text-gray-400 text-sm">Chưa có bình luận nào.</div>
             )}
@@ -465,92 +465,43 @@ export default function CommentPage() {
                 setShowMedia={setShowMedia}
                 replyImages={replyImages}
                 setReplyImages={setReplyImages}
-                replyVideo={replyVideo}
-                setReplyVideo={setReplyVideo}
+                replyVideos={replyVideos}
+                setReplyVideos={setReplyVideos}
               />
             ))}
           </div>
 
           {/* Comment input */}
-          <div className="flex items-start space-x-3">
+          <div className="flex items-center space-x-3">
             <img src="https://placehold.co/40x40" alt="Avatar" className="w-10 h-10 rounded-full" />
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Viết bình luận..."
-                className="w-full p-2 border rounded-lg focus:outline-none"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
-              {/* Hiển thị lỗi nếu có */}
-              {commentError && (
-                <div className="text-red-500 text-xs mt-1">{commentError}</div>
+            <input type="text" placeholder="Viết bình luận..." className="flex-1 p-2 border rounded-lg focus:outline-none" value={newComment} onChange={(e) => setNewComment(e.target.value)} />
+            
+            <div className="flex items-center gap-2">
+              <label className="cursor-pointer">
+                <Image size={20} className="hover:text-black" />
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const file = e.target.files?.[0] || null; setCommentImage(file); }} />
+              </label>
+              <label className="cursor-pointer">
+                <Video size={20} className="hover:text-black" />
+                <input type="file" accept="video/*" style={{ display: 'none' }} onChange={e => { const file = e.target.files?.[0] || null; setCommentVideo(file); }} />
+              </label>
+              {commentImage && (
+                <div className="relative w-10 h-10">
+                  <img src={URL.createObjectURL(commentImage)} alt="preview" className="w-10 h-10 object-cover rounded" />
+                  <button type="button" className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200" onClick={() => setCommentImage(null)}>×</button>
+                </div>
               )}
-              <div className="flex items-center mt-2 gap-2">
-                <label className="cursor-pointer">
-                  <Image size={20} className="hover:text-black" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={e => setCommentImage(e.target.files?.[0] || null)}
-                  />
-                </label>
-                <label className="cursor-pointer">
-                  <Video size={20} className="hover:text-black" />
-                  <input
-                    type="file"
-                    accept="video/*"
-                    style={{ display: 'none' }}
-                    onChange={e => setCommentVideo(e.target.files?.[0] || null)}
-                  />
-                </label>
-                {/* Hiển thị preview ảnh nếu có */}
-                {commentImage && (
-                  <div className="relative w-10 h-10">
-                    <img
-                      src={URL.createObjectURL(commentImage)}
-                      alt="preview"
-                      className="w-10 h-10 object-cover rounded"
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
-                      onClick={() => setCommentImage(null)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-                {/* Hiển thị preview video nếu có */}
-                {commentVideo && (
-                  <div className="relative w-16 h-10">
-                    <video
-                      src={URL.createObjectURL(commentVideo)}
-                      className="w-16 h-10 object-cover rounded"
-                      controls
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
-                      onClick={() => setCommentVideo(null)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-              </div>
+              {commentVideo && (
+                <div className="relative w-16 h-10">
+                  <video src={URL.createObjectURL(commentVideo)} className="w-16 h-10 object-cover rounded" controls />
+                  <button type="button" className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200" onClick={() => setCommentVideo(null)}>×</button>
+                </div>
+              )}
             </div>
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold"
-              onClick={async () => {
-                await handleComment();
-                setNewComment(''); // Reset input after comment is posted
-              }}
-            >
-              Đăng
-            </button>
+
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold" onClick={async () => { await handleComment(); setNewComment(''); }}>Đăng</button>
           </div>
+          {commentError && <div className="text-red-500 text-xs mt-1">{commentError}</div>}
 
         </div>
       </div>
@@ -588,8 +539,8 @@ function CommentItem({
   setShowMedia,
   replyImages,
   setReplyImages,
-  replyVideo,
-  setReplyVideo,
+  replyVideos,
+  setReplyVideos,
 }: any) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(cmt.content);
@@ -689,20 +640,21 @@ function CommentItem({
         ) : (
           <div className="text-sm mt-1 break-words">{cmt.content}</div>
         )}
-        {/* Hiển thị media giống bên post: luôn show ảnh hoặc video nếu có */}
-        {cmt.image_id ? (
+        {/* Hiển thị media giống bên post: hiển thị cả ảnh và video nếu có */}
+        {cmt.image_id && (
           <img
             src={`http://127.0.0.1:8000/media/${cmt.image_id}`}
             alt="Comment"
             className="mt-2 rounded-lg"
           />
-        ) : cmt.video_id ? (
+        )}
+        {cmt.video_id && (
           <video
             src={`http://127.0.0.1:8000/media/${cmt.video_id}?is_image=false`}
             controls
             className="mt-2 rounded-lg w-full"
           />
-        ) : null}
+        )}
       </div>
       <div className="flex gap-4 text-gray-500 mt-3">
         <ActionButton 
@@ -746,8 +698,8 @@ function CommentItem({
           setShowMedia={setShowMedia}
           replyImages={replyImages}
           setReplyImages={setReplyImages}
-          replyVideo={replyVideo}
-          setReplyVideo={setReplyVideo}
+          replyVideos={replyVideos}
+          setReplyVideos={setReplyVideos}
         />
       ))}
       {/* Input reply */}
@@ -770,7 +722,10 @@ function CommentItem({
               style={{ display: 'none' }}
               onChange={e => {
                 const file = e.target.files?.[0] || null;
-                setReplyImages((prev: any) => ({ ...prev, [cmt.comment_id]: file }));
+                setReplyImages((prev: any) => ({
+                  ...prev,
+                  [cmt.comment_id]: file,
+                }));
               }}
             />
           </label>
@@ -782,7 +737,10 @@ function CommentItem({
               style={{ display: 'none' }}
               onChange={e => {
                 const file = e.target.files?.[0] || null;
-                setReplyVideo((prev: any) => ({ ...prev, [cmt.comment_id]: file }));
+                setReplyVideos((prev: any) => ({
+                  ...prev,
+                  [cmt.comment_id]: file,
+                }));
               }}
             />
           </label>
@@ -797,24 +755,30 @@ function CommentItem({
               <button
                 type="button"
                 className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
-                onClick={() => setReplyImages((prev: any) => ({ ...prev, [cmt.comment_id]: null }))}
+                onClick={() => setReplyImages((prev: any) => ({
+                  ...prev,
+                  [cmt.comment_id]: null,
+                }))}
               >
                 ×
               </button>
             </div>
           )}
           {/* Hiển thị preview video nếu có */}
-          {replyVideo[cmt.comment_id] && (
+          {replyVideos[cmt.comment_id] && (
             <div className="relative w-16 h-10 ml-1">
               <video
-                src={URL.createObjectURL(replyVideo[cmt.comment_id])}
+                src={URL.createObjectURL(replyVideos[cmt.comment_id])}
                 className="w-16 h-10 object-cover rounded"
                 controls
               />
               <button
                 type="button"
                 className="absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200"
-                onClick={() => setReplyVideo((prev: any) => ({ ...prev, [cmt.comment_id]: null }))}
+                onClick={() => setReplyVideos((prev: any) => ({
+                  ...prev,
+                  [cmt.comment_id]: null,
+                }))}
               >
                 ×
               </button>

@@ -523,6 +523,14 @@
     max-height: 400px;
   }
 
+  .max-h-\[440px\] {
+    max-height: 440px;
+  }
+
+  .max-h-\[450px\] {
+    max-height: 450px;
+  }
+
   .max-h-\[470px\] {
     max-height: 470px;
   }

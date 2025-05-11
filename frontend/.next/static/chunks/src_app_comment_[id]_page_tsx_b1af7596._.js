@@ -54,10 +54,10 @@ function CommentPage() {
     const [commentVideo, setCommentVideo] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [showMedia, setShowMedia] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
     const [replyImages, setReplyImages] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
-    const [replyVideo, setReplyVideo] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
+    const [replyVideos, setReplyVideos] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
     const [commentError, setCommentError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const handleComment = async ()=>{
-        if (!newComment.trim() && !commentImage && !commentVideo) {
+        if (!newComment.trim()) {
             setCommentError('Vui lòng nhập nội dung bình luận!');
             return;
         }
@@ -85,8 +85,8 @@ function CommentPage() {
                     ...prev,
                     data
                 ]);
-            setCommentImage(null); // reset image
-            setCommentVideo(null); // reset video
+            setCommentImage(null);
+            setCommentVideo(null);
         } catch (error) {
             console.error('Error commenting:', error);
         }
@@ -186,8 +186,8 @@ function CommentPage() {
             if (replyImages[commentId]) {
                 formData.append("image", replyImages[commentId]);
             }
-            if (replyVideo[commentId]) {
-                formData.append("video", replyVideo[commentId]);
+            if (replyVideos[commentId]) {
+                formData.append("video", replyVideos[commentId]);
             }
             const response = await fetch(`http://127.0.0.1:8000/comments/${commentId}/reply`, {
                 method: 'POST',
@@ -213,7 +213,7 @@ function CommentPage() {
                     ...prev,
                     [commentId]: null
                 }));
-            setReplyVideo((prev)=>({
+            setReplyVideos((prev)=>({
                     ...prev,
                     [commentId]: null
                 }));
@@ -604,7 +604,7 @@ function CommentPage() {
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "space-y-4 overflow-y-auto p-2 max-h-[470px]",
+                            className: "space-y-4 overflow-y-auto p-2 max-h-[440px]",
                             children: [
                                 commentList.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "text-gray-400 text-sm",
@@ -634,8 +634,8 @@ function CommentPage() {
                                         setShowMedia: setShowMedia,
                                         replyImages: replyImages,
                                         setReplyImages: setReplyImages,
-                                        replyVideo: replyVideo,
-                                        setReplyVideo: setReplyVideo
+                                        replyVideos: replyVideos,
+                                        setReplyVideos: setReplyVideos
                                     }, cmt.comment_id || cmt._id, false, {
                                         fileName: "[project]/src/app/comment/[id]/page.tsx",
                                         lineNumber: 447,
@@ -648,7 +648,7 @@ function CommentPage() {
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex items-start space-x-3",
+                            className: "flex items-center space-x-3",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                                     src: "https://placehold.co/40x40",
@@ -659,167 +659,156 @@ function CommentPage() {
                                     lineNumber: 476,
                                     columnNumber: 13
                                 }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "text",
+                                    placeholder: "Viết bình luận...",
+                                    className: "flex-1 p-2 border rounded-lg focus:outline-none",
+                                    value: newComment,
+                                    onChange: (e)=>setNewComment(e.target.value)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                    lineNumber: 477,
+                                    columnNumber: 13
+                                }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex-1",
+                                    className: "flex items-center gap-2",
                                     children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                            type: "text",
-                                            placeholder: "Viết bình luận...",
-                                            className: "w-full p-2 border rounded-lg focus:outline-none",
-                                            value: newComment,
-                                            onChange: (e)=>setNewComment(e.target.value)
-                                        }, void 0, false, {
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            className: "cursor-pointer",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Image$3e$__["Image"], {
+                                                    size: 20,
+                                                    className: "hover:text-black"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                                    lineNumber: 481,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "file",
+                                                    accept: "image/*",
+                                                    style: {
+                                                        display: 'none'
+                                                    },
+                                                    onChange: (e)=>{
+                                                        const file = e.target.files?.[0] || null;
+                                                        setCommentImage(file);
+                                                    }
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                                    lineNumber: 482,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 478,
+                                            lineNumber: 480,
                                             columnNumber: 15
                                         }, this),
-                                        commentError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "text-red-500 text-xs mt-1",
-                                            children: commentError
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                            lineNumber: 487,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex items-center mt-2 gap-2",
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            className: "cursor-pointer",
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                    className: "cursor-pointer",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Image$3e$__["Image"], {
-                                                            size: 20,
-                                                            className: "hover:text-black"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 491,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                            type: "file",
-                                                            accept: "image/*",
-                                                            style: {
-                                                                display: 'none'
-                                                            },
-                                                            onChange: (e)=>setCommentImage(e.target.files?.[0] || null)
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 492,
-                                                            columnNumber: 19
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$video$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Video$3e$__["Video"], {
+                                                    size: 20,
+                                                    className: "hover:text-black"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                                    lineNumber: 485,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "file",
+                                                    accept: "video/*",
+                                                    style: {
+                                                        display: 'none'
+                                                    },
+                                                    onChange: (e)=>{
+                                                        const file = e.target.files?.[0] || null;
+                                                        setCommentVideo(file);
+                                                    }
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                                    lineNumber: 486,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                            lineNumber: 484,
+                                            columnNumber: 15
+                                        }, this),
+                                        commentImage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "relative w-10 h-10",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                    src: URL.createObjectURL(commentImage),
+                                                    alt: "preview",
+                                                    className: "w-10 h-10 object-cover rounded"
+                                                }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
                                                     lineNumber: 490,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                    className: "cursor-pointer",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$video$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Video$3e$__["Video"], {
-                                                            size: 20,
-                                                            className: "hover:text-black"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 500,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                            type: "file",
-                                                            accept: "video/*",
-                                                            style: {
-                                                                display: 'none'
-                                                            },
-                                                            onChange: (e)=>setCommentVideo(e.target.files?.[0] || null)
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 501,
-                                                            columnNumber: 19
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 499,
-                                                    columnNumber: 17
-                                                }, this),
-                                                commentImage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "relative w-10 h-10",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                                                            src: URL.createObjectURL(commentImage),
-                                                            alt: "preview",
-                                                            className: "w-10 h-10 object-cover rounded"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 511,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                            type: "button",
-                                                            className: "absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200",
-                                                            onClick: ()=>setCommentImage(null),
-                                                            children: "×"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 516,
-                                                            columnNumber: 21
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 510,
                                                     columnNumber: 19
                                                 }, this),
-                                                commentVideo && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "relative w-16 h-10",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
-                                                            src: URL.createObjectURL(commentVideo),
-                                                            className: "w-16 h-10 object-cover rounded",
-                                                            controls: true
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 528,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                            type: "button",
-                                                            className: "absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200",
-                                                            onClick: ()=>setCommentVideo(null),
-                                                            children: "×"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                            lineNumber: 533,
-                                                            columnNumber: 21
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                    type: "button",
+                                                    className: "absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200",
+                                                    onClick: ()=>setCommentImage(null),
+                                                    children: "×"
+                                                }, void 0, false, {
                                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                                    lineNumber: 527,
+                                                    lineNumber: 491,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/comment/[id]/page.tsx",
                                             lineNumber: 489,
-                                            columnNumber: 15
+                                            columnNumber: 17
+                                        }, this),
+                                        commentVideo && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "relative w-16 h-10",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
+                                                    src: URL.createObjectURL(commentVideo),
+                                                    className: "w-16 h-10 object-cover rounded",
+                                                    controls: true
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                                    lineNumber: 496,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                    type: "button",
+                                                    className: "absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200",
+                                                    onClick: ()=>setCommentVideo(null),
+                                                    children: "×"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                                    lineNumber: 497,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/comment/[id]/page.tsx",
+                                            lineNumber: 495,
+                                            columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 477,
+                                    lineNumber: 479,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     className: "bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold",
                                     onClick: async ()=>{
                                         await handleComment();
-                                        setNewComment(''); // Reset input after comment is posted
+                                        setNewComment('');
                                     },
                                     children: "Đăng"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 544,
+                                    lineNumber: 502,
                                     columnNumber: 13
                                 }, this)
                             ]
@@ -827,6 +816,14 @@ function CommentPage() {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
                             lineNumber: 475,
                             columnNumber: 11
+                        }, this),
+                        commentError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "text-red-500 text-xs mt-1",
+                            children: commentError
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/comment/[id]/page.tsx",
+                            lineNumber: 504,
+                            columnNumber: 28
                         }, this)
                     ]
                 }, void 0, true, {
@@ -846,7 +843,7 @@ function CommentPage() {
         columnNumber: 5
     }, this);
 }
-_s(CommentPage, "AMYh81txbyH2KL+/kfVd/Pref2Y=", false, function() {
+_s(CommentPage, "mdCDDm+GbKJ+tJa2l8H9VaDkX1g=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useParams"]
@@ -864,18 +861,18 @@ function ActionButton({ icon, count, onClick }) {
                 children: count
             }, void 0, false, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 565,
+                lineNumber: 516,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/comment/[id]/page.tsx",
-        lineNumber: 563,
+        lineNumber: 514,
         columnNumber: 5
     }, this);
 }
 _c1 = ActionButton;
-function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handleLikeComment, showInputReply, toggleReplyInput, replyInputs, setReplyInputs, handleReplySubmit, replyReplies, fetchReplies, formatTime, depth = 0, onEditComment, onDeleteComment, showMedia, setShowMedia, replyImages, setReplyImages, replyVideo, setReplyVideo }) {
+function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handleLikeComment, showInputReply, toggleReplyInput, replyInputs, setReplyInputs, handleReplySubmit, replyReplies, fetchReplies, formatTime, depth = 0, onEditComment, onDeleteComment, showMedia, setShowMedia, replyImages, setReplyImages, replyVideos, setReplyVideos }) {
     _s1();
     const [isEditing, setIsEditing] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [editValue, setEditValue] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(cmt.content);
@@ -957,7 +954,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         className: "w-8 h-8 rounded-full"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 660,
+                        lineNumber: 611,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -965,7 +962,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         children: commentUser?.username || "user"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 661,
+                        lineNumber: 612,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -973,7 +970,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         children: cmt.created_at ? formatTime(cmt.created_at) : "--"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 662,
+                        lineNumber: 613,
                         columnNumber: 9
                     }, this),
                     currentUser?.user_id === cmt.user_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -986,7 +983,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                     children: "Sửa"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 670,
+                                    lineNumber: 621,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -995,20 +992,20 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                     children: "Xóa"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                    lineNumber: 671,
+                                    lineNumber: 622,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true)
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 667,
+                        lineNumber: 618,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 659,
+                lineNumber: 610,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1024,7 +1021,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 onChange: (e)=>setEditValue(e.target.value)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 680,
+                                lineNumber: 631,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1033,7 +1030,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 children: "Lưu"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 686,
+                                lineNumber: 637,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1045,43 +1042,44 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 children: "Hủy"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 687,
+                                lineNumber: 638,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 679,
+                        lineNumber: 630,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-sm mt-1 break-words",
                         children: cmt.content
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 690,
+                        lineNumber: 641,
                         columnNumber: 11
                     }, this),
-                    cmt.image_id ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                    cmt.image_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                         src: `http://127.0.0.1:8000/media/${cmt.image_id}`,
                         alt: "Comment",
                         className: "mt-2 rounded-lg"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 694,
+                        lineNumber: 645,
                         columnNumber: 11
-                    }, this) : cmt.video_id ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
+                    }, this),
+                    cmt.video_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
                         src: `http://127.0.0.1:8000/media/${cmt.video_id}?is_image=false`,
                         controls: true,
                         className: "mt-2 rounded-lg w-full"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 700,
+                        lineNumber: 652,
                         columnNumber: 11
-                    }, this) : null
+                    }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 677,
+                lineNumber: 628,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1093,14 +1091,14 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                             className: commentLikes[cmt.comment_id] ? "text-red-500" : "text-gray-500"
                         }, void 0, false, {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                            lineNumber: 709,
+                            lineNumber: 661,
                             columnNumber: 17
                         }, void 0),
                         count: commentLikeCounts[cmt.comment_id] ?? 0,
                         onClick: ()=>handleLikeComment(cmt.comment_id)
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 708,
+                        lineNumber: 660,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ActionButton, {
@@ -1108,7 +1106,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                             size: 18
                         }, void 0, false, {
                             fileName: "[project]/src/app/comment/[id]/page.tsx",
-                            lineNumber: 714,
+                            lineNumber: 666,
                             columnNumber: 17
                         }, void 0),
                         count: cmt.replies ?? 0,
@@ -1118,13 +1116,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         }
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 713,
+                        lineNumber: 665,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 707,
+                lineNumber: 659,
                 columnNumber: 7
             }, this),
             showInputReply[cmt.comment_id] && replyReplies[cmt.comment_id]?.map((reply)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(CommentItem, {
@@ -1151,11 +1149,11 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                     setShowMedia: setShowMedia,
                     replyImages: replyImages,
                     setReplyImages: setReplyImages,
-                    replyVideo: replyVideo,
-                    setReplyVideo: setReplyVideo
+                    replyVideos: replyVideos,
+                    setReplyVideos: setReplyVideos
                 }, reply.comment_id || reply._id || reply.id, false, {
                     fileName: "[project]/src/app/comment/[id]/page.tsx",
-                    lineNumber: 724,
+                    lineNumber: 676,
                     columnNumber: 9
                 }, this)),
             showInputReply[cmt.comment_id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1167,7 +1165,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         className: "w-8 h-8 rounded-full"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 756,
+                        lineNumber: 708,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1181,7 +1179,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 }))
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 757,
+                        lineNumber: 709,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1192,7 +1190,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 className: "hover:text-black"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 766,
+                                lineNumber: 718,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1210,13 +1208,13 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 767,
+                                lineNumber: 719,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 765,
+                        lineNumber: 717,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1227,7 +1225,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 className: "hover:text-black"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 778,
+                                lineNumber: 733,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1238,20 +1236,20 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 },
                                 onChange: (e)=>{
                                     const file = e.target.files?.[0] || null;
-                                    setReplyVideo((prev)=>({
+                                    setReplyVideos((prev)=>({
                                             ...prev,
                                             [cmt.comment_id]: file
                                         }));
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 779,
+                                lineNumber: 734,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 777,
+                        lineNumber: 732,
                         columnNumber: 11
                     }, this),
                     replyImages[cmt.comment_id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1263,7 +1261,7 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 className: "w-10 h-10 object-cover rounded"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 792,
+                                lineNumber: 750,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1276,44 +1274,44 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                                 children: "×"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 797,
+                                lineNumber: 755,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 791,
+                        lineNumber: 749,
                         columnNumber: 13
                     }, this),
-                    replyVideo[cmt.comment_id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    replyVideos[cmt.comment_id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "relative w-16 h-10 ml-1",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
-                                src: URL.createObjectURL(replyVideo[cmt.comment_id]),
+                                src: URL.createObjectURL(replyVideos[cmt.comment_id]),
                                 className: "w-16 h-10 object-cover rounded",
                                 controls: true
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 809,
+                                lineNumber: 770,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 type: "button",
                                 className: "absolute top-0 right-0 bg-white rounded-full p-0.5 text-xs text-red-500 border border-gray-300 hover:bg-gray-200",
-                                onClick: ()=>setReplyVideo((prev)=>({
+                                onClick: ()=>setReplyVideos((prev)=>({
                                             ...prev,
                                             [cmt.comment_id]: null
                                         })),
                                 children: "×"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                                lineNumber: 814,
+                                lineNumber: 775,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 808,
+                        lineNumber: 769,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1322,19 +1320,19 @@ function CommentItem({ cmt, currentUser, commentLikes, commentLikeCounts, handle
                         children: "Gửi"
                     }, void 0, false, {
                         fileName: "[project]/src/app/comment/[id]/page.tsx",
-                        lineNumber: 823,
+                        lineNumber: 787,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/comment/[id]/page.tsx",
-                lineNumber: 755,
+                lineNumber: 707,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/comment/[id]/page.tsx",
-        lineNumber: 655,
+        lineNumber: 606,
         columnNumber: 5
     }, this);
 }
