@@ -185,7 +185,9 @@ export default function ProfilePage() {
           <div>
             <div className="flex items-center gap-2">
               <p className="font-semibold">{user?.full_name || "Người dùng"}</p>
-              <p className="text-sm text-gray-500">@{user?.username || ""}</p>
+              <Link href={`/profile/${user?.user_id}`}>
+                <span className="text-sm text-blue-500 hover:underline cursor-pointer">@{user?.username || ""}</span>
+              </Link>
               <p className="text-sm text-gray-500">{formatTime(post.created_at)}</p>
             </div>
           </div>
@@ -392,16 +394,18 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-            <button
-              className={`px-4 py-2 rounded-lg font-semibold ${
-                isFollowing
-                  ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                  : 'bg-blue-500 hover:bg-blue-600 text-white'
-              }`}
-              onClick={handleFollow}
-            >
-              {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
-            </button>
+            {currentUser?.user_id !== userId && (
+              <button
+                className={`px-4 py-2 rounded-lg font-semibold ${
+                  isFollowing
+                    ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+                onClick={handleFollow}
+              >
+                {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+              </button>
+            )}
           </div>
 
           {/* Tabs */}

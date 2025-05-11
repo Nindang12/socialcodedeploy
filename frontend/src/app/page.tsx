@@ -3,6 +3,7 @@ import { MessageCircle, Heart, Repeat, Smile, Image, MapPin, AlignLeft, X, MoreH
 import { useState,ReactNode, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Link from "next/link";
 
 const posts = [
   {
@@ -749,7 +750,11 @@ function Post({
           <div>
             <div className="flex items-center gap-2">
               <div>
-                <p className="font-semibold">{username}</p>
+                <Link href={`/profile/${user_id}`}>
+                  <span className="text-sm font-semibold text-black hover:underline cursor-pointer">
+                    {username}
+                  </span>
+                </Link>
                 <p className="text-sm text-gray-500">{time}</p>
               </div>
               {String(user_id) !== String(currentUser?.user_id) && (

@@ -1325,6 +1325,12 @@
     }
   }
 
+  @media (hover: hover) {
+    .hover\:underline:hover {
+      text-decoration-line: underline;
+    }
+  }
+
   .focus\:border-black:focus {
     border-color: var(--color-black);
   }
