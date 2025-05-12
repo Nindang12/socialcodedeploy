@@ -237,21 +237,24 @@ export default function Home() {
         },
       });
 
-      // Lấy username của user hiện tại
+      // Lấy thông tin user hiện tại
       const userRes = await axios.get<UserResponse>(`http://127.0.0.1:8000/users/${response.data.user_id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
+      const userData = userRes.data.user;
+      const avatarUrl = userData.avatar ? userData.avatar : `https://placehold.co/40x40?text=${userData.username}`;
+
       // Tạo post mới với dữ liệu chuẩn
       const newPost = {
         ...response.data,
         time: formatTime(response.data.created_at),
-        avatar: `https://placehold.co/40x40?text=${response.data.user_id}`,
-        username: userRes.data.user.username,
-        image: response.data.image_id || "",
-        video: response.data.video_id || "",
+        avatar: avatarUrl,
+        username: userData.username,
+        image: response.data.image_id ? `http://127.0.0.1:8000/media/${response.data.image_id}` : "",
+        video: response.data.video_id ? `http://127.0.0.1:8000/media/${response.data.video_id}` : "",
         likes: typeof response.data.likes === "number" ? response.data.likes : 0,
         comments: typeof response.data.comments === "number" ? response.data.comments : 0,
         reposts: typeof response.data.reposts === "number" ? response.data.reposts : 0,
@@ -429,7 +432,7 @@ export default function Home() {
             </div>
           )}
 
-          <div className="space-y-4 max-h-[80vh] overflow-y-auto">
+          <div className="space-y-4 max-h-[75vh] overflow-y-auto">
           {localPosts.map((post) => (
             <Post
               key={post.post_id}
@@ -823,8 +826,8 @@ function Post({
       <div className="flex justify-between relative">
         <div className="flex items-center space-x-3">
           <img
-            src={avatar && !avatar.startsWith('http') ? `http://127.0.0.1:8000/media/${avatar}` : (avatar || `https://placehold.co/40x40?text=${username}`)}
-            alt="Avatar"
+            src={avatar && !avatar.startsWith('http') ? `http://127.0.0.1:8000/media/${avatar}?${Date.now()}` : (avatar || `https://placehold.co/40x40?text=${username}`)}
+            alt="Avatar" 
             className="w-10 h-10 rounded-full"
           />
           <div>

@@ -569,8 +569,20 @@
     max-height: calc(var(--spacing) * 40);
   }
 
+  .max-h-\[75vh\] {
+    max-height: 75vh;
+  }
+
   .max-h-\[80vh\] {
     max-height: 80vh;
+  }
+
+  .max-h-\[85vh\] {
+    max-height: 85vh;
+  }
+
+  .max-h-\[90vh\] {
+    max-height: 90vh;
   }
 
   .max-h-\[440px\] {
@@ -583,6 +595,14 @@
 
   .max-h-\[calc\(100vh-260px\)\] {
     max-height: calc(100vh - 260px);
+  }
+
+  .max-h-\[calc\(100vh-280px\)\] {
+    max-height: calc(100vh - 280px);
+  }
+
+  .max-h-\[calc\(100vh-290px\)\] {
+    max-height: calc(100vh - 290px);
   }
 
   .min-h-\[100px\] {

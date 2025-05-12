@@ -398,8 +398,8 @@ async def update_user(
         "phone_number": phone_number if phone_number is not None else current_user["phone_number"],
         "username": username if username is not None else current_user["username"],
         "email": email if email is not None else current_user["email"],
-        "bio": bio if bio is not None else current_user["bio"],
-        "avatar": current_user["avatar"]  # Giữ nguyên avatar cũ nếu không có avatar mới
+        "bio": bio if bio is not None else current_user.get("bio", ""),
+        "avatar": current_user.get("avatar", None)  # Sử dụng get() để xử lý trường hợp không có avatar
     }
 
     try:

@@ -108,7 +108,7 @@ export default function LikePage() {
       <h1 className="text-xl text-black font-bold mb-4">Bài viết đã thích</h1>
       <div className="max-w-xl w-full h-auto">
         <div className="bg-white rounded-2xl shadow-md p-4 space-y-4">
-          <div className="space-y-4 max-h-[80vh] overflow-y-auto">
+          <div className="space-y-4 max-h-[85vh] overflow-y-auto">
             {loading ? (
               <div className="text-center py-4">Đang tải...</div>
             ) : likedPosts.length === 0 ? (

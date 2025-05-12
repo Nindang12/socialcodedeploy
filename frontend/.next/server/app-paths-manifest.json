@@ -6,5 +6,6 @@
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
   "/profile/[userId]/page": "app/profile/[userId]/page.js",
-  "/search/page": "app/search/page.js"
+  "/search/page": "app/search/page.js",
+  "/signup/page": "app/signup/page.js"
 }

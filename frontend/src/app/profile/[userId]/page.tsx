@@ -80,27 +80,52 @@ export default function ProfilePage() {
       const commentsRes = await axios.get(`http://127.0.0.1:8000/comments/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      // Nếu backend trả về {comments: [...]}
-      const userComments = Array.isArray(commentsRes.data) ? commentsRes.data : commentsRes.data.comments;
+      
+      // Lấy comments từ response
+      const userComments = commentsRes.data;
 
       // Lấy các post chứa comment của user
       const postIds = [...new Set(userComments.map((comment: any) => comment.post_id))];
-      const postsWithUserComments = await Promise.all(
+      
+      const postsWithComments = await Promise.all(
         postIds.map(async (postId) => {
           try {
             const postRes = await axios.get(`http://127.0.0.1:8000/posts/${postId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
-            const post = postRes.data;
-            post.userComments = userComments.filter((c: any) => c.post_id === postId);
-            return post;
-          } catch (e) {
+            
+            // Lấy post data từ response
+            const postData = postRes.data;
+
+            // Lấy thông tin user của post
+            const postUserRes = await axios.get(`http://127.0.0.1:8000/users/${postData.user_id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            // Lọc comments thuộc về post này
+            const postComments = userComments.filter((comment: any) => comment.post_id === postId);
+            
+            // Thêm comments và thông tin user vào post data
+            return {
+              ...postData,
+              userComments: postComments,
+              user: postUserRes.data.user
+            };
+          } catch (error) {
+            console.error(`Error fetching post ${postId}:`, error);
             return null;
           }
         })
       );
-      setReplies(postsWithUserComments.filter(Boolean));
+
+      // Lọc bỏ các post null và sắp xếp theo thời gian mới nhất
+      const validPosts = postsWithComments
+        .filter(Boolean)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setReplies(validPosts);
     } catch (err) {
+      console.error('Error fetching profile data:', err);
       setUser(null);
       setPosts([]);
       setReplies([]);
@@ -516,7 +541,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Content */}
-          <div className="space-y-4 overflow-auto max-h-[calc(100vh-260px)]">
+          <div className="space-y-4 overflow-auto max-h-[calc(100vh-290px)]">
             {activeTab === 'posts' && (
               Array.isArray(posts) && posts.length > 0 ? (
                 posts.map((post) => (
@@ -530,8 +555,13 @@ export default function ProfilePage() {
               Array.isArray(replies) && replies.length > 0 ? (
                 replies.map((post) => (
                   <div key={post.post_id} className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
+                    {/* Post author info */}
                     <div className="flex items-center space-x-3">
-                      <img src={post.user?.avatar ? `http://127.0.0.1:8000/media/${post.user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
+                      <img 
+                        src={post.user?.avatar ? `http://127.0.0.1:8000/media/${post.user.avatar}` : "https://placehold.co/40x40"} 
+                        alt="Avatar" 
+                        className="w-10 h-10 rounded-full" 
+                      />
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-semibold">{post.user?.full_name || "Người dùng"}</p>
@@ -543,12 +573,14 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <p className="mt-2">{post.content}</p>
+                    <Link href={`/comment/${post.post_id}`}>
+                      <p className="mt-2">{post.content}</p>
+                    </Link>
                     {post.image_id && (
                       <img src={`http://127.0.0.1:8000/media/${post.image_id}`} alt="Post" className="mt-2 rounded-lg" />
                     )}
 
-                    {/* User's comment */}
+                    {/* User's comments */}
                     {post.userComments?.map((comment: any) => (
                       <div key={comment.comment_id} className="mt-4 p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-2">
