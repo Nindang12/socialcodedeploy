@@ -69,7 +69,6 @@ export default function ProfilePage() {
       const userRes = await axios.get(`http://127.0.0.1:8000/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('User data from API:', userRes.data);
       setUser(userRes.data.user);
 
       const postsRes = await axios.get(`http://127.0.0.1:8000/users/${userId}/posts`, {
@@ -77,14 +76,31 @@ export default function ProfilePage() {
       });
       setPosts(postsRes.data.posts);
 
-      // Lấy posts có comment của user
-      const repliesRes = await axios.get(`http://127.0.0.1:8000/posts?commenter_id=${userId}`, {
+      // Lấy comments của user
+      const commentsRes = await axios.get(`http://127.0.0.1:8000/comments/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
-      setReplies(repliesRes.data.posts || []);
+      // Nếu backend trả về {comments: [...]}
+      const userComments = Array.isArray(commentsRes.data) ? commentsRes.data : commentsRes.data.comments;
+
+      // Lấy các post chứa comment của user
+      const postIds = [...new Set(userComments.map((comment: any) => comment.post_id))];
+      const postsWithUserComments = await Promise.all(
+        postIds.map(async (postId) => {
+          try {
+            const postRes = await axios.get(`http://127.0.0.1:8000/posts/${postId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            const post = postRes.data;
+            post.userComments = userComments.filter((c: any) => c.post_id === postId);
+            return post;
+          } catch (e) {
+            return null;
+          }
+        })
+      );
+      setReplies(postsWithUserComments.filter(Boolean));
     } catch (err) {
-      console.error('Error fetching profile:', err);
       setUser(null);
       setPosts([]);
       setReplies([]);
@@ -532,22 +548,22 @@ export default function ProfilePage() {
                       <img src={`http://127.0.0.1:8000/media/${post.image_id}`} alt="Post" className="mt-2 rounded-lg" />
                     )}
 
-                    {/* Comment của user */}
-                    {post.comments?.find((comment: any) => comment.user_id === userId) && (
-                      <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    {/* User's comment */}
+                    {post.userComments?.map((comment: any) => (
+                      <div key={comment.comment_id} className="mt-4 p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-2">
                           <img src={user?.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-8 h-8 rounded-full" />
                           <div>
                             <p className="text-sm font-semibold">{user?.full_name || "Người dùng"}</p>
-                            <p className="text-xs text-gray-500">{formatTime(post.comments.find((comment: any) => comment.user_id === userId).created_at)}</p>
+                            <p className="text-xs text-gray-500">{formatTime(comment.created_at)}</p>
                           </div>
                         </div>
-                        <p className="mt-2 text-sm">{post.comments.find((comment: any) => comment.user_id === userId).content}</p>
-                        {post.comments.find((comment: any) => comment.user_id === userId).image_id && (
-                          <img src={`http://127.0.0.1:8000/media/${post.comments.find((comment: any) => comment.user_id === userId).image_id}`} alt="Comment" className="mt-2 rounded-lg max-h-40 object-cover" />
+                        <p className="mt-2 text-sm">{comment.content}</p>
+                        {comment.image_id && (
+                          <img src={`http://127.0.0.1:8000/media/${comment.image_id}`} alt="Comment" className="mt-2 rounded-lg max-h-40 object-cover" />
                         )}
                       </div>
-                    )}
+                    ))}
                   </div>
                 ))
               ) : (

@@ -249,6 +249,13 @@ class Comment_dao:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to edit comment: {str(e)}")
 
+    def get_comments_by_user_id(self, user_id: str):
+        try:
+            # Lấy tất cả comments của user
+            comments = self.collection.find({"user_id": user_id})
+            return list(comments)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to get comments by user_id: {str(e)}")
     def delete_comment(self, comment_id: str, user_id: str):
         try:
             # Check if comment exists

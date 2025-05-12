@@ -283,6 +283,20 @@ def like_comment(comment_id: str, user_id: str = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to like comment: {str(e)}")
 
+@app.get("/comments/user/{user_id}")
+def get_comments_by_user_id(user_id: str):
+    try:
+        comments = Manager.get_comments_by_user_id(user_id)
+        return JSONResponse(
+            content=json.loads(
+                json.dumps(comments, cls=CustomJSONEncoder)
+            )
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get comments by user_id: {str(e)}")
+
 @app.get("/posts/{post_id}/comments")
 def get_comments(post_id: str):
     try:

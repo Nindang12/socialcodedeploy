@@ -264,6 +264,19 @@ class Post_dao:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to toggle like post: {str(e)}")
 
+    def get_posts_with_comments(self, commenter_id: str):
+        try:
+            # Get all posts
+            posts = self.collection.find()
+            result = []
+            for post in posts: 
+                if "_id" in post:
+                    post["_id"] = str(post["_id"])
+                result.append(post)
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to get posts with comments: {str(e)}")
+
     def repost(self, post_id: str, user_id: str):
         try:
             # Get the post first

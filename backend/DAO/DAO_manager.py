@@ -117,6 +117,9 @@ class DAO_Manager:
     
     def update_user(self, user_id: str, user: dict):
         return self.user_dao.update_user(user_id, user)
+    
+    def get_comments_by_user_id(self, user_id: str):
+        return self.comment_dao.get_comments_by_user_id(user_id)
         
     def save_file_to_gridfs(self, contents: bytes, filename: str, content_type: str):
         return gridfs_client.upload_file(contents, filename, content_type)
