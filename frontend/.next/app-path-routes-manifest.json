@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/activity/page": "/activity",
+  "/comment/[id]/page": "/comment/[id]",
+  "/likepage/page": "/likepage",
+  "/login/page": "/login",
+  "/messages/page": "/messages",
+  "/page": "/",
+  "/profile/[userId]/page": "/profile/[userId]",
+  "/search/page": "/search",
+  "/settings/page": "/settings",
+  "/signup/page": "/signup"
+}
