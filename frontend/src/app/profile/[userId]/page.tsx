@@ -61,6 +61,7 @@ export default function ProfilePage() {
     avatar: null as File | null,
   });
   const [editLoading, setEditLoading] = useState(false);
+  const [reposts, setReposts] = useState<any[]>([]);
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -124,11 +125,48 @@ export default function ProfilePage() {
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setReplies(validPosts);
+
+      // Lấy tất cả các bài post
+      const allPostsRes = await axios.get(`http://127.0.0.1:8000/posts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Lọc ra các post mà user đã repost
+      const repostedPosts = allPostsRes.data.filter((post: any) => 
+        Array.isArray(post.reposted_by) && 
+        post.reposted_by.map((id: string) => String(id).trim()).includes(String(userId).trim())
+      );
+
+      // Thêm thông tin user cho mỗi post đã repost
+      const repostedPostsWithUsers = await Promise.all(
+        repostedPosts.map(async (post: any) => {
+          try {
+            const postUserRes = await axios.get(`http://127.0.0.1:8000/users/${post.user_id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            return {
+              ...post,
+              user: postUserRes.data.user
+            };
+          } catch (error) {
+            console.error(`Error fetching user for post ${post.post_id}:`, error);
+            return post;
+          }
+        })
+      );
+
+      // Sắp xếp theo thời gian mới nhất
+      const sortedRepostedPosts = repostedPostsWithUsers.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
+      setReposts(sortedRepostedPosts);
     } catch (err) {
       console.error('Error fetching profile data:', err);
       setUser(null);
       setPosts([]);
       setReplies([]);
+      setReposts([]);
     } finally {
       setLoading(false);
     }
@@ -533,10 +571,10 @@ export default function ProfilePage() {
               Trả lời
             </button>
             <button
-              className={`px-4 py-2 ${activeTab === 'media' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
-              onClick={() => handleTabChange('media')}
+              className={`px-4 py-2 ${activeTab === 'reposts' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+              onClick={() => handleTabChange('reposts')}
             >
-              Media
+              Đăng lại
             </button>
           </div>
 
@@ -602,8 +640,60 @@ export default function ProfilePage() {
                 <div className="py-8 text-center text-gray-500">Không có trả lời nào.</div>
               )
             )}
-            {activeTab === 'media' && (
-              <div className="py-8 text-center text-gray-500">Tính năng đang được phát triển.</div>
+            {activeTab === 'reposts' && (
+              Array.isArray(reposts) && reposts.length > 0 ? (
+                reposts.map((post) => (
+                  <div key={post.post_id} className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
+                    {/* Post author info */}
+                    <div className="flex items-center space-x-3">
+                      <img 
+                        src={post.user?.avatar ? `http://127.0.0.1:8000/media/${post.user.avatar}` : "https://placehold.co/40x40"} 
+                        alt="Avatar" 
+                        className="w-10 h-10 rounded-full" 
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold">{post.user?.full_name || "Người dùng"}</p>
+                          <Link href={`/profile/${post.user?.user_id}`}>
+                            <span className="text-sm text-blue-500 hover:underline cursor-pointer">@{post.user?.username || ""}</span>
+                          </Link>
+                          <p className="text-sm text-gray-500">{formatTime(post.created_at)}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Link href={`/comment/${post.post_id}`}>
+                      <p className="mt-2">{post.content}</p>
+                    </Link>
+                    {post.image_id && (
+                      <img src={`http://127.0.0.1:8000/media/${post.image_id}`} alt="Post" className="mt-2 rounded-lg" />
+                    )}
+                    {post.video_id && (
+                      <video src={`http://127.0.0.1:8000/media/${post.video_id}`} controls className="mt-2 rounded-lg w-full" />
+                    )}
+
+                    <div className="flex gap-4 text-gray-500 mt-3">
+                      <ActionButton 
+                        icon={<Heart size={18} className={post.liked_by?.includes(currentUser?.user_id) ? "text-red-500" : "text-gray-500"} />} 
+                        count={post.likes || 0} 
+                        onClick={() => {}} 
+                      />
+                      <ActionButton 
+                        icon={<MessageCircle size={18} />} 
+                        count={post.comments || 0} 
+                        onClick={() => {}} 
+                      />
+                      <ActionButton 
+                        icon={<Repeat size={18} className="text-green-500" />} 
+                        count={post.reposts || 0} 
+                        onClick={() => {}} 
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-gray-500">Không có bài đăng lại nào.</div>
+              )
             )}
           </div>
         </div>
