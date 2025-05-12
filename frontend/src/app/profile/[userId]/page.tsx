@@ -27,10 +27,28 @@ export default function ProfilePage() {
   const router = useRouter()
   const params = useParams();
   const userId = params.userId as string;
+
+  const formatTime = (createdAt: string) => {
+    const now = new Date();
+    const postDate = new Date(createdAt);
+    const diffInMinutes = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} phút`;
+    } else if (diffInMinutes < 1440) { // Less than 24 hours
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      return `${diffInHours} giờ`;
+    } else {
+      const diffInDays = Math.floor(diffInMinutes / 1440);
+      return `${diffInDays} ngày`;
+    }
+  };
+
   const [activeTab, setActiveTab] = useState('posts')
   const [isFollowing, setIsFollowing] = useState(false)
   const [user, setUser] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
+  const [replies, setReplies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -58,9 +76,18 @@ export default function ProfilePage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPosts(postsRes.data.posts);
+
+      // Lấy posts có comment của user
+      const repliesRes = await axios.get(`http://127.0.0.1:8000/posts?commenter_id=${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setReplies(repliesRes.data.posts || []);
     } catch (err) {
+      console.error('Error fetching profile:', err);
       setUser(null);
       setPosts([]);
+      setReplies([]);
     } finally {
       setLoading(false);
     }
@@ -85,7 +112,7 @@ export default function ProfilePage() {
       setIsFollowing(isFollowed);
     }
   }, [user, currentUser]);
-
+  
   const PostCard = ({ post, onActionDone }: { post: any, onActionDone: () => void }) => {
     const isLiked = Array.isArray(post.liked_by) && currentUser
       ? post.liked_by.map((id: string) => String(id).trim()).includes(String(currentUser.user_id).trim())
@@ -103,21 +130,6 @@ export default function ProfilePage() {
     const [commentVideo, setCommentVideo] = useState<File | null>(null);
 
     const date = new Date(post.created_at);
-    const formatTime = (createdAt: string) => {
-      const now = new Date();
-      const postDate = new Date(createdAt);
-      const diffInMinutes = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
-      
-      if (diffInMinutes < 60) {
-        return `${diffInMinutes} phút`;
-      } else if (diffInMinutes < 1440) { // Less than 24 hours
-        const diffInHours = Math.floor(diffInMinutes / 60);
-        return `${diffInHours} giờ`;
-      } else {
-        const diffInDays = Math.floor(diffInMinutes / 1440);
-        return `${diffInDays} ngày`;
-      }
-    };
     useEffect(() => {
       const newLiked = Array.isArray(post.liked_by) && currentUser
         ? post.liked_by.map((id: string) => String(id).trim()).includes(String(currentUser.user_id).trim())
@@ -365,13 +377,14 @@ export default function ProfilePage() {
   )
 
   const handleTabChange = (tab: string) => {
-    // TODO: Implement tab change functionality
+    setActiveTab(tab);
   };
 
   const handleFollow = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/users/${userId}/follow`, {
+      const endpoint = isFollowing ? 'unfollow' : 'follow';
+      const response = await fetch(`http://127.0.0.1:8000/users/${userId}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -382,7 +395,7 @@ export default function ProfilePage() {
         await fetchProfile();
       }
     } catch (error) {
-      console.error('Error following user:', error);
+      console.error('Error following/unfollowing user:', error);
     }
   };
 
@@ -435,7 +448,9 @@ export default function ProfilePage() {
               <h2 className="text-xl font-bold">{user?.full_name || "username"}</h2>
               <p className="text-gray-500">@{user?.username || "username"}</p>
               <p className="text-gray-500">{user?.bio || "Bio"}</p>
-              <Pencil size={18} className="cursor-pointer hover:text-blue-500" onClick={() => setShowEditProfile(true)} />
+              {currentUser?.user_id === userId && (
+                <Pencil size={18} className="cursor-pointer hover:text-blue-500" onClick={() => setShowEditProfile(true)} />
+              )}
               <div className="flex space-x-4 mt-2">
                 <div>
                   <span className="font-bold">{Array.isArray(posts) ? posts.length : 0}</span> bài viết
@@ -486,12 +501,61 @@ export default function ProfilePage() {
 
           {/* Content */}
           <div className="space-y-4 overflow-auto max-h-[calc(100vh-260px)]">
-            {Array.isArray(posts) && posts.length > 0 ? (
-              posts.map((post) => (
-                <PostCard key={post.post_id} post={post} onActionDone={fetchProfile} />
-              ))
-            ) : (
-              <div className="py-8 text-center text-gray-500">Không có bài viết nào.</div>
+            {activeTab === 'posts' && (
+              Array.isArray(posts) && posts.length > 0 ? (
+                posts.map((post) => (
+                  <PostCard key={post.post_id} post={post} onActionDone={fetchProfile} />
+                ))
+              ) : (
+                <div className="py-8 text-center text-gray-500">Không có bài viết nào.</div>
+              )
+            )}
+            {activeTab === 'replies' && (
+              Array.isArray(replies) && replies.length > 0 ? (
+                replies.map((post) => (
+                  <div key={post.post_id} className="bg-white text-black p-4 shadow-md w-full rounded-lg border">
+                    <div className="flex items-center space-x-3">
+                      <img src={post.user?.avatar ? `http://127.0.0.1:8000/media/${post.user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-10 h-10 rounded-full" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold">{post.user?.full_name || "Người dùng"}</p>
+                          <Link href={`/profile/${post.user?.user_id}`}>
+                            <span className="text-sm text-blue-500 hover:underline cursor-pointer">@{post.user?.username || ""}</span>
+                          </Link>
+                          <p className="text-sm text-gray-500">{formatTime(post.created_at)}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="mt-2">{post.content}</p>
+                    {post.image_id && (
+                      <img src={`http://127.0.0.1:8000/media/${post.image_id}`} alt="Post" className="mt-2 rounded-lg" />
+                    )}
+
+                    {/* Comment của user */}
+                    {post.comments?.find((comment: any) => comment.user_id === userId) && (
+                      <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <img src={user?.avatar ? `http://127.0.0.1:8000/media/${user.avatar}` : "https://placehold.co/40x40"} alt="Avatar" className="w-8 h-8 rounded-full" />
+                          <div>
+                            <p className="text-sm font-semibold">{user?.full_name || "Người dùng"}</p>
+                            <p className="text-xs text-gray-500">{formatTime(post.comments.find((comment: any) => comment.user_id === userId).created_at)}</p>
+                          </div>
+                        </div>
+                        <p className="mt-2 text-sm">{post.comments.find((comment: any) => comment.user_id === userId).content}</p>
+                        {post.comments.find((comment: any) => comment.user_id === userId).image_id && (
+                          <img src={`http://127.0.0.1:8000/media/${post.comments.find((comment: any) => comment.user_id === userId).image_id}`} alt="Comment" className="mt-2 rounded-lg max-h-40 object-cover" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-gray-500">Không có trả lời nào.</div>
+              )
+            )}
+            {activeTab === 'media' && (
+              <div className="py-8 text-center text-gray-500">Tính năng đang được phát triển.</div>
             )}
           </div>
         </div>

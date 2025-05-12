@@ -385,7 +385,7 @@ async def update_user(
         "username": username if username is not None else current_user["username"],
         "email": email if email is not None else current_user["email"],
         "bio": bio if bio is not None else current_user["bio"],
-        "avatar": [["avatar"]]  # Giữ nguyên avatar cũ nếu không có avatar mới
+        "avatar": current_user["avatar"]  # Giữ nguyên avatar cũ nếu không có avatar mới
     }
 
     try:
